@@ -13,6 +13,7 @@ class SarsaRSTest(unittest.TestCase):
             'env': self.env,
             'params': {
                 'vid': 'table',
+                'clip_range': None
             }
         }
         self.rs = shaner.SarsaRS(**config)

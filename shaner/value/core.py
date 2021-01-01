@@ -4,7 +4,6 @@ class TableValue:
         self.env = env
         self.transformer = transformer
         self.value = self.__init_value()
-        self.center = (env.observation_space.high + env.observation_space.low) / 2
 
     def __call__(self, obs):
         ind = self.transformer(obs)

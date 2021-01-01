@@ -1,5 +1,4 @@
 
-
 class HighReward:
     def __init__(self, gamma):
         self.value = 0
