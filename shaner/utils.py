@@ -28,5 +28,5 @@ def n_ary2decimal(array, n):
     """
     value = 0
     for i, i_v in enumerate(array):
-        value += n**i
+        value += i_v * n**i
     return value

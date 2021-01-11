@@ -1,6 +1,6 @@
 import unittest
 from shaner.value import TableValue
-from shaner.transformer import TwoDiscretizer
+from shaner.aggregater import Discretizer
 import gym
 import gym_pinball
 
@@ -9,8 +9,8 @@ class TestTableValue(unittest.TestCase):
     def setUp(self):
         self.env = gym.make('PinBall-v0')
         params = {}
-        transformer = TwoDiscretizer(self.env)
-        self.v = TableValue(self.env, transformer=transformer,
+        aggregater = Discretizer(self.env, 2)
+        self.v = TableValue(self.env, aggregater=aggregater,
                             **params)
 
     def test_update(self):

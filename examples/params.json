@@ -1,0 +1,23 @@
+{
+    "patterns":[
+        {
+            "vid": "table",
+            "aggr_id": "dta",
+            "params": {
+                "env_id": "FetchPickAndPlace-v1",
+                "n_obs": 25,
+                "_range": 0.01
+            }
+        },
+        {
+            "vid": "table",
+            "aggr_id": "disc",
+            "params": {
+                "env": "gym.make(hogehoge)",
+                "clip_range": 5,
+                "n": 2
+            }
+        }
+    ]
+}
+

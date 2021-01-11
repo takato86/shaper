@@ -1,5 +1,6 @@
-from shaner.transformer.core import TwoDiscretizer, ThreeDiscretizer
-from shaner.transformer.splitter import Splitter
+from shaner.aggregater import Discretizer
+from shaner.aggregater import Splitter
+from shaner.aggregater import FetchPickAndPlaceAchiever
 import gym
 import gym_pinball
 import unittest
@@ -16,26 +17,35 @@ class TestSplitter(unittest.TestCase):
         self.assertListEqual(res.tolist(), correct)
 
 
-class TestTwoDiscretizer(unittest.TestCase):
+class TestDiscretizer(unittest.TestCase):
     def setUp(self):
         env = gym.make('PinBall-v0')
-        self.transformer = TwoDiscretizer(env)
+        self.aggregater = Discretizer(env, 2)
 
-    def testCall(self):
+    def testTwoAggregate(self):
         obs = [0, 0, 0, 0]
-        self.assertEqual(0, self.transformer(obs))
+        done = False
+        self.assertEqual(12, self.aggregater(obs, done))
         obs = [0, 0.7, 0, 0]
-        self.assertEqual(2, self.transformer(obs))
+        self.assertEqual(14, self.aggregater(obs, done))
 
-class TestThreeDiscretizer(unittest.TestCase):
+
+class TestFetchPickAndPlaceAchiever(unittest.TestCase):
     def setUp(self):
-        env = gym.make('PinBall-v0')
-        # env = gym.make('FetchPickAndPlace-v1')
-        # Memory Error
-        self.transformer = ThreeDiscretizer(env)
-        obs = [0, 0, 0, 0]
-        correct = 27 + 9 + 3 + 1
-        self.assertEqual(correct, self.transformer(obs))
-    
-    def testCall(self):
-        pass
+        self.env = gym.make('FetchPickAndPlace-v1')
+        self.achiever = FetchPickAndPlaceAchiever(0.01, 25)
+
+    def testEval(self):
+        obs = np.full(25, 0)
+        res = self.achiever.eval(obs, 0)
+        correct = True
+        self.assertEqual(res, correct)
+        obs = np.full(25, 0.5)
+        res = self.achiever.eval(obs, 0)
+        correct = False
+        self.assertEqual(res, correct)
+        obs = np.full(25, 0.01)
+        res = self.achiever.eval(obs, 1)
+        correct = True
+        self.assertEqual(res, correct)
+
