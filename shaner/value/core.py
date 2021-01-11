@@ -1,11 +1,11 @@
-from shaner.utils import get_box
+
 
 class TableValue:
-    def __init__(self, env, **params):
+    def __init__(self, env, n_states, **params):
         self.env = env
-        self.n_states = get_box(env.observation_space).shape[0]
+        self.n_states = n_states
         self.value = self.__init_value()
-        
+
     def __call__(self, state):
         return self.value[state]
 

@@ -17,6 +17,17 @@
                 "clip_range": 5,
                 "n": 2
             }
+        },
+        {
+            "vid": "table",
+            "aggr_id": "dta",
+            "params": {
+                "env": "PinBall-v0",
+                "clip_range": 5,
+                "n_obs": 4,
+                "_range": 0.01,
+                "subgoal_path": "subgoal.csv"
+            }
         }
     ]
 }

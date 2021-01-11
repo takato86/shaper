@@ -1,5 +1,4 @@
-from shaner.aggregater.factory import AggregaterFactory
-from shaner.factory import ValueFactory
+from shaner.factory import ValueFactory, AggregaterFactory
 from shaner.reward import HighReward
 
 
@@ -7,8 +6,11 @@ class SarsaRS:
     def __init__(self, gamma, lr, env, params):
         self.gamma = gamma
         self.lr = lr
-        self.aggregater = AggregaterFactory().create(params['aggr_id'], params['params'])
-        self.vfunc = ValueFactory().create(params['vid'], env=env)
+        self.aggregater = AggregaterFactory().create(params['aggr_id'],
+                                                     params['params'])
+        self.vfunc = ValueFactory().create(params['vid'],
+                                           n_states=self.aggregater.n_states,
+                                           env=env)
         # TODO factory method pattern
         self.high_reward = HighReward(gamma=gamma)
         self.t = 0  # timesteps during abstract states.

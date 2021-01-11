@@ -1,5 +1,4 @@
 import numpy as np
-
 from gym.spaces import Box, Dict
 from shaner.utils import get_box, n_ary2decimal
 from shaner.aggregater.entity.splitter import Splitter
@@ -34,7 +33,7 @@ class Discretizer(AbstractTransformer):
             low = box.low
             high = box.high
         return Splitter(low, high, self.n)
-    
+
     def get_n_states(self):
         return self.n_states
 
