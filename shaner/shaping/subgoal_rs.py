@@ -1,6 +1,6 @@
 from shaner.factory import ValueFactory, AggregaterFactory
 from shaner.reward import HighReward
-
+from shaner.utils import decimal_calc
 
 class SubgoalRS:
     def __init__(self, gamma, lr, env, params):
@@ -30,7 +30,12 @@ class SubgoalRS:
         else:
             self.t = 0
         c_potential = self.potential(z)
-        v = self.gamma * c_potential - self.p_potential
+        # ※浮動小数点flaotは2進数による10進数の近似を行っている
+        v = decimal_calc(
+            self.gamma * c_potential,
+            self.p_potential,
+            "-"
+        )
         self.pz = z
         self.p_potential = c_potential
         if done:
@@ -38,4 +43,8 @@ class SubgoalRS:
         return v
 
     def potential(self, z):
-        return self.eta * z - self.rho * self.t
+        return decimal_calc(
+            self.eta * z,
+            self.rho * self.t,
+            "-"
+        )

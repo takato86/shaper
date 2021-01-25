@@ -31,7 +31,7 @@ class FourroomsAchiever(AbstractAchiever):
         return obs == subgoal
 
     def __generate_subgoals(self):
-        df = pd.read_csv(self.subgoal_path)
+        df = pd.read_csv(self.subgoal_path, index_col=0)
         subgoals = df.values
         return subgoals
 

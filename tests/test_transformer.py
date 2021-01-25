@@ -1,10 +1,13 @@
 from shaner.aggregater import Discretizer
 from shaner.aggregater import Splitter
-from shaner.aggregater import FetchPickAndPlaceAchiever
+from shaner.aggregater import FetchPickAndPlaceAchiever,\
+    FourroomsAchiever
 import gym
 import gym_pinball
+import gym_fourrooms
 import unittest
 import numpy as np
+import os
 
 class TestSplitter(unittest.TestCase):
     def testThreeSplit(self):
@@ -49,3 +52,15 @@ class TestFetchPickAndPlaceAchiever(unittest.TestCase):
         correct = True
         self.assertEqual(res, correct)
 
+
+class TestFourroomsAchiever(unittest.TestCase):
+    def testEval(self):
+        env = gym.make('ConstFourrooms-v0')
+        subgoal_path = os.path.join("tests", "in", "fourrooms_subgoals.csv")
+        achiever = FourroomsAchiever(0, 103, subgoal_path)
+        obses = [1, 2, 1, 3]
+        a_states = [0, 0, 1, 1]
+        corrects = [True, False, False, True]
+        for obs, a_state, correct in zip(obses, a_states, corrects):
+            res = achiever.eval(obs, a_state)
+            self.assertEqual(res, correct)        

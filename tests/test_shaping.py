@@ -2,6 +2,7 @@ import unittest
 import shaner
 import gym
 import gym_pinball
+import gym_fourrooms
 import numpy as np
 
 
@@ -98,6 +99,45 @@ class DTATest(unittest.TestCase):
         self.assertEqual(0.001, rs.vfunc(0))
         self.assertEqual(0, rs.vfunc(z))
         self.assertEqual(-0.001, v)
+
+
+class TestSubgoalRS(unittest.TestCase):
+    def setUp(self):
+        env_id = "ConstFourrooms-v0"
+        self.env = gym.make(env_id)
+        self.config = {
+            'lr': 0.001,
+            'gamma': 0.99,
+            'env': self.env,
+            'params': {
+                'eta': 1,
+                'rho': 0.1,
+                'vid': 'table',
+                'aggr_id': 'dta',
+                'params':{
+                    'env_id': env_id,
+                    '_range': 0,
+                    'n_obs': 103,
+                    'subgoal_path': "tests/in/fourrooms_subgoals.csv"
+                }
+            }
+        }
+
+    def test_perform(self):
+        rs = shaner.SubgoalRS(**self.config)
+        pre_obs = 0
+        obs = 1
+        reward = 0
+        done = False
+        v = rs.perform(pre_obs, obs, reward, done)
+        self.assertEqual(0.99, v)
+        pre_obs = obs
+        obs = 2
+        v = rs.perform(pre_obs, obs, reward, done)
+        # c_potential = 1 - 0.1
+        # gamma * c_potential - p_potential = 0.99 * 0.9 - 1 = -0.109
+        self.assertEqual(-0.109, v)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,5 +1,5 @@
 from gym.spaces import Box, Dict
-
+from decimal import Decimal
 
 def get_box(space):
     # 2021/1 robotic arm環境にしか対応できていない
@@ -14,6 +14,7 @@ def get_box(space):
         return space
     elif type(space) is Dict:
         return space['observation']
+
 
 def n_ary2decimal(array, n):
     """
@@ -30,3 +31,18 @@ def n_ary2decimal(array, n):
     for i, i_v in enumerate(array):
         value += i_v * n**i
     return value
+
+
+def decimal_calc(x, y, symbol):
+    d_x = Decimal(str(x))
+    d_y = Decimal(str(y))
+    if symbol == "-":
+        return float(d_x - d_y)
+    if symbol == "*":
+        return float(d_x * d_y)
+    if symbol == "+":
+        return float(d_x + d_y)
+    if symbol == "/":
+        return float(d_x / d_y)
+    else:
+        raise NotImplementedError
