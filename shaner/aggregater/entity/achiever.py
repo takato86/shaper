@@ -7,6 +7,10 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractAchiever:
+    def __init__(self, _range, n_obs):
+        self._range = _range
+        self.n_obs = n_obs
+
     def eval(self, obs, current_state):
         raise NotImplementedError
 
@@ -14,10 +18,27 @@ class AbstractAchiever:
         raise NotImplementedError
 
 
+class FourroomsAchiever(AbstractAchiever):
+    def __init__(self, _range, n_obs, subgoal_path, **params):
+        super().__init__(_range, n_obs)
+        self.subgoal_path = subgoal_path
+        self.subgoals = self.__generate_subgoals()
+
+    def eval(self, obs, current_state):
+        if len(self.subgoals) <= current_state:
+            return False
+        subgoal = np.array(self.subgoals[current_state])
+        return obs == subgoal
+
+    def __generate_subgoals(self):
+        df = pd.read_csv(self.subgoal_path)
+        subgoals = df.values
+        return subgoals
+
+
 class PinballAchiever(AbstractAchiever):
     def __init__(self, _range, n_obs, subgoal_path, **params):
-        self._range = _range
-        self.n_obs = n_obs
+        super().__init__(_range, n_obs)
         self.subgoal_path = subgoal_path
         self.subgoals = self.__generate_subgoals()
 
@@ -41,8 +62,7 @@ class PinballAchiever(AbstractAchiever):
 
 class FetchPickAndPlaceAchiever(AbstractAchiever):
     def __init__(self, _range, n_obs, **params):
-        self._range = _range  # 0.01
-        self.n_obs = n_obs
+        super().__init__(_range, n_obs)
         self.subgoals = self.__generate_subgoals()  # n_obs=25
 
     def eval(self, obs, current_state):

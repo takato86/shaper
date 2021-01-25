@@ -4,7 +4,7 @@ from shaner.utils import get_box, n_ary2decimal
 from shaner.aggregater.entity.splitter import Splitter
 
 
-class AbstractTransformer:
+class AbstractAggregater:
     def __call__(self, obs, done):
         raise NotImplementedError
     
@@ -12,7 +12,7 @@ class AbstractTransformer:
         raise NotImplementedError
 
 
-class Discretizer(AbstractTransformer):
+class Discretizer(AbstractAggregater):
     def __init__(self, env, n, clip_range=None):
         self.env = env
         self.n = n
@@ -38,7 +38,7 @@ class Discretizer(AbstractTransformer):
         return self.n_states
 
 
-class ExampleTransformer(AbstractTransformer):
+class ExampleTransformer(AbstractAggregater):
     def __init__(self, env):
         self.env = env
 

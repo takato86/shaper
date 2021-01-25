@@ -1,6 +1,6 @@
 from shaner.value import TableValue
 from shaner.aggregater.core import Discretizer
-from shaner.aggregater.dta import DTA
+from shaner.aggregater.subgoal_based import DTA
 
 id2aggr = {
     "disc": Discretizer,

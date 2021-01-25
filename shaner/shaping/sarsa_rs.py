@@ -35,7 +35,7 @@ class SarsaRS:
             self.pz = self.aggregater(pre_obs, False)
         z = self.aggregater(obs, done)
         self.__train(self.pz, z, reward, done)
-        z = self.aggregater(obs, done)
+        # z = self.aggregater(obs, done)
         v = self.gamma * self.potential(z) - self.potential(self.pz)
         self.pz = z
         if done:

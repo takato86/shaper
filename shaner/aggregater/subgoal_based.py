@@ -1,13 +1,21 @@
-from shaner.aggregater.core import AbstractTransformer
-from shaner.aggregater.entity.achiever import FetchPickAndPlaceAchiever, PinballAchiever
+from shaner.aggregater.core import AbstractAggregater
+from shaner.aggregater.entity.achiever import \
+    FetchPickAndPlaceAchiever, \
+    PinballAchiever, \
+    FourroomsAchiever
+
 
 id2achiever = {
     "FetchPickAndPlace-v1": FetchPickAndPlaceAchiever,
-    "PinBall-v0": PinballAchiever
+    "PinBall-v0": PinballAchiever,
+    "Fourrooms-v0": FourroomsAchiever,
+    "ConstFourrooms-v0": FourroomsAchiever,
+    "DiagonalFourrooms-v0": FourroomsAchiever,
+    "DiagonalPartialFourrooms-v0": FourroomsAchiever
 }
 
 
-class DTA(AbstractTransformer):
+class DTA(AbstractAggregater):
     def __init__(self, env_id, n_obs, _range, **params):
         self.achiever = id2achiever[env_id](n_obs=n_obs, _range=_range,
                                             **params)
@@ -26,3 +34,4 @@ class DTA(AbstractTransformer):
 
     def get_n_states(self):
         return self.n_states
+
