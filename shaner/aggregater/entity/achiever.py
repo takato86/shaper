@@ -2,6 +2,7 @@ import logging
 import numpy as np
 import pandas as pd
 import os
+from shaner.utils import l2_norm_dist
 
 logger = logging.getLogger(__name__)
 
@@ -19,39 +20,31 @@ class AbstractAchiever:
 
 
 class FourroomsAchiever(AbstractAchiever):
-    def __init__(self, _range, n_obs, subgoal_path, **params):
+    def __init__(self, _range, n_obs, subgoals, **params):
         super().__init__(_range, n_obs)
-        self.subgoal_path = subgoal_path
-        self.subgoals = self.__generate_subgoals()
+        self.subgoals = subgoals  # 2d-ndarray shape(#obs, #subgoals)
 
     def eval(self, obs, current_state):
         if len(self.subgoals) <= current_state:
             return False
         subgoal = np.array(self.subgoals[current_state])
-        return obs == subgoal
-
-    def __generate_subgoals(self):
-        df = pd.read_csv(self.subgoal_path, index_col=0)
-        subgoals = df.values
-        return subgoals
+        return all(obs == subgoal)
 
 
 class PinballAchiever(AbstractAchiever):
-    def __init__(self, _range, n_obs, subgoal_path, **params):
+    def __init__(self, _range, n_obs, subgoals, **params):
         super().__init__(_range, n_obs)
-        self.subgoal_path = subgoal_path
-        self.subgoals = self.__generate_subgoals()
+        self.subgoals = subgoals # 2d-ndarray shape(#obs, #subgoals)
 
     def eval(self, obs, current_state):
         if len(self.subgoals) <= current_state:
             return False
         subgoal = np.array(self.subgoals[current_state])
-        idxs = np.argwhere(subgoal == subgoal)
-        b_lower = subgoal[idxs] - self._range <= obs[idxs]
-        b_higher = obs[idxs] <= subgoal[idxs] + self._range
-        res = all(b_lower & b_higher)
+        idxs = np.argwhere(subgoal == subgoal)  # np.nanでない要素を取り出し
+        b_in = l2_norm_dist(subgoal[idxs].reshape(-1), obs[idxs].reshape(-1)) <= self._range
+        res = np.all(b_in)
         if res:
-            logger.info("Achieve the subgoal{}".format(current_state))
+            logger.debug("Achieve the subgoal{}".format(current_state))
         return res
 
     def __generate_subgoals(self):
@@ -69,7 +62,7 @@ class FetchPickAndPlaceAchiever(AbstractAchiever):
         if len(self.subgoals) <= current_state:
             return False
         subgoal = np.array(self.subgoals[current_state])
-        idxs = np.argwhere(subgoal == subgoal)
+        idxs = np.argwhere(subgoal == subgoal) # np.nanでない要素を取り出し
         b_lower = subgoal[idxs] - self._range <= obs[idxs]
         b_higher = obs[idxs] <= subgoal[idxs] + self._range
         res = all(b_lower & b_higher)

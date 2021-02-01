@@ -43,8 +43,19 @@ class SubgoalRS:
         return v
 
     def potential(self, z):
-        return decimal_calc(
+        return max(decimal_calc(
             self.eta * z,
             self.rho * self.t,
             "-"
-        )
+        ), 0)
+
+
+class NaiveSRS(SubgoalRS):
+    def __init__(self, gamma, lr, env, params):
+        super().__init__(gamma, lr, env, params)
+    
+    def potential(self, z):
+        if self.t == 0:
+            return self.eta
+        else:
+            return 0

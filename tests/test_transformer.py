@@ -1,7 +1,7 @@
 from shaner.aggregater import Discretizer
 from shaner.aggregater import Splitter
 from shaner.aggregater import FetchPickAndPlaceAchiever,\
-    FourroomsAchiever
+    FourroomsAchiever, PinballAchiever
 import gym
 import gym_pinball
 import gym_fourrooms
@@ -56,11 +56,29 @@ class TestFetchPickAndPlaceAchiever(unittest.TestCase):
 class TestFourroomsAchiever(unittest.TestCase):
     def testEval(self):
         env = gym.make('ConstFourrooms-v0')
-        subgoal_path = os.path.join("tests", "in", "fourrooms_subgoals.csv")
-        achiever = FourroomsAchiever(0, 103, subgoal_path)
+        # subgoal_path = os.path.join("tests", "in", "fourrooms_subgoals.csv")
+        subgoals = np.array([[1], [3]])
+        achiever = FourroomsAchiever(0, 103, subgoals)
         obses = [1, 2, 1, 3]
         a_states = [0, 0, 1, 1]
         corrects = [True, False, False, True]
         for obs, a_state, correct in zip(obses, a_states, corrects):
             res = achiever.eval(obs, a_state)
             self.assertEqual(res, correct)        
+
+
+class TestPinballAchiever(unittest.TestCase):
+    def testEval(self):
+        env = gym.make('PinBall-v0')
+        subgoals = np.array([[0.5, 0.5, np.nan, np.nan], [0.7, 0.7, np.nan, np.nan]])
+        achiever = PinballAchiever(0.04, env.observation_space.shape[0], subgoals)
+        obses = [
+            [0.5, 0.5, 0.5, 0.5],
+            [0.6, 0.6, 0.6, 0.6],
+        ]
+        obses = np.array(obses)
+        a_states = [0, 0]
+        corrects = [True, False]
+        for obs, a_state, correct in zip(obses, a_states, corrects):
+            res = achiever.eval(obs, a_state)
+            self.assertEqual(res, correct)

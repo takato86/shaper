@@ -1,5 +1,6 @@
 from gym.spaces import Box, Dict
 from decimal import Decimal
+import numpy as np
 
 def get_box(space):
     # 2021/1 robotic arm環境にしか対応できていない
@@ -46,3 +47,7 @@ def decimal_calc(x, y, symbol):
         return float(d_x / d_y)
     else:
         raise NotImplementedError
+
+
+def l2_norm_dist(x_arr, y_arr):
+    return np.linalg.norm(x_arr - y_arr, ord=2)

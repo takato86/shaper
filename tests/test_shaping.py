@@ -118,7 +118,8 @@ class TestSubgoalRS(unittest.TestCase):
                     'env_id': env_id,
                     '_range': 0,
                     'n_obs': 103,
-                    'subgoal_path': "tests/in/fourrooms_subgoals.csv"
+                    'subgoals': [[1], [3]]
+                    # 'subgoal_path': "tests/in/fourrooms_subgoals.csv"
                 }
             }
         }

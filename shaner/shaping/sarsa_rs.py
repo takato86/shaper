@@ -23,6 +23,7 @@ class SarsaRS:
         self.t += 1
         self.high_reward.update(reward)
         if self.pz != z or self.high_reward() > 0:
+            assert self.t > 0
             target = reward + self.gamma ** self.t * self.vfunc(z)
             td_error = target - self.vfunc(pz)
             self.vfunc.update(pz,
@@ -34,9 +35,10 @@ class SarsaRS:
         if self.pz is None:
             self.pz = self.aggregater(pre_obs, False)
         z = self.aggregater(obs, done)
-        self.__train(self.pz, z, reward, done)
-        # z = self.aggregater(obs, done)
         v = self.gamma * self.potential(z) - self.potential(self.pz)
+        self.__train(self.pz, z, reward, done)
+        # trainでself.pzの価値関数が更新されたときの挙動は？
+        # Dynamic PBRSに従えば、更新前の値を使うべき
         self.pz = z
         if done:
             self.reset()
