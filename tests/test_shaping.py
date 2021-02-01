@@ -18,7 +18,7 @@ class SarsaRSTest(unittest.TestCase):
                 'aggr_id': 'disc',
                 'params':{
                     'env': self.env,
-                    'clip_range': None,
+                    'clip_range': 1,
                     'n': 2
                 }
             }
@@ -39,7 +39,7 @@ class SarsaRSTest(unittest.TestCase):
 
     def test_perform(self):
         pre_obs = [0, 0.7, 0, 0]
-        obs = [0, 0, 0, 0]
+        obs = [0, -0.7, 0, 0]
         reward = 1
         done = False
         self.assertEqual(0, self.rs.vfunc(0))
@@ -48,7 +48,8 @@ class SarsaRSTest(unittest.TestCase):
         print(self.rs.pz, self.rs.aggregater(obs, False))
         self.assertEqual(0.001, self.rs.vfunc(self.rs.aggregater(pre_obs, False)))
         self.assertEqual(0, self.rs.vfunc(self.rs.aggregater(obs, False)))
-        self.assertEqual(-0.001, v)
+        # pre_potentialは前試行の結果を使うので、0
+        self.assertEqual(0, v)
 
 
 class DTATest(unittest.TestCase):
@@ -98,7 +99,7 @@ class DTATest(unittest.TestCase):
         v = rs.perform(pre_obs, obs, reward, done)
         self.assertEqual(0.001, rs.vfunc(0))
         self.assertEqual(0, rs.vfunc(z))
-        self.assertEqual(-0.001, v)
+        self.assertEqual(0, v)
 
 
 class TestSubgoalRS(unittest.TestCase):
