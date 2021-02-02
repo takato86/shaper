@@ -1,5 +1,6 @@
 from shaner.factory import ValueFactory, AggregaterFactory
 from shaner.reward import HighReward
+from shaner.utils import decimal_calc
 
 
 class SarsaRS:
@@ -35,7 +36,11 @@ class SarsaRS:
         if self.pz is None:
             self.pz = self.aggregater(pre_obs, False)
         z = self.aggregater(obs, done)
-        v = self.gamma * self.potential(z) - self.potential(self.pz)
+        v = decimal_calc(
+            self.gamma * self.potential(z),
+            self.potential(self.pz),
+            "-"
+        )
         self.__train(self.pz, z, reward, done)
         # trainでself.pzの価値関数が更新されたときの挙動は？
         # Dynamic PBRSに従えば、更新前の値を使うべき
