@@ -10,8 +10,7 @@ class TestTableValue(unittest.TestCase):
         self.env = gym.make('PinBall-v0')
         aggregater = Discretizer(self.env, 2)
         params = {"n_states": aggregater.get_n_states()}
-        self.v = TableValue(self.env, aggregater=aggregater,
-                            **params)
+        self.v = TableValue(self.env, **params)
 
     def test_update(self):
         v = 1

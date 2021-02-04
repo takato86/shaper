@@ -1,7 +1,8 @@
 from shaner.aggregater import Discretizer
-from shaner.aggregater import Splitter
+from shaner.aggregater import Splitter, NSplitter
 from shaner.aggregater import FetchPickAndPlaceAchiever,\
     FourroomsAchiever, PinballAchiever
+from shaner.utils import n_ary2decimal
 import gym
 import gym_pinball
 import gym_fourrooms
@@ -9,16 +10,38 @@ import unittest
 import numpy as np
 import os
 
+
 class TestSplitter(unittest.TestCase):
     def testThreeSplit(self):
         obs = [-5, 5, 0, 3, 3.334, -3, -3.334, -1, 1]
         lower = np.array([-5] * len(obs))
         higher = np.array([5] * len(obs))
-        splitter = Splitter(lower, higher, 3)
+        k = 3
+        splitter = Splitter(lower, higher, k)
         res = splitter.eval(obs)
-        correct = [0, 2, 1, 2, 2, 0, 0, 1, 1]
-        self.assertListEqual(res.tolist(), correct)
+        correct = n_ary2decimal([0, 2, 1, 2, 2, 0, 0, 1, 1], k)
+        self.assertEqual(res, correct)
 
+class TestNSplitter(unittest.TestCase):
+    def testThreeSplit(self):
+        obs = [-5, 5, 0, 3, 3.334, -3, -3.334, -1, 1]
+        lower = np.array([-5] * len(obs))
+        higher = np.array([5] * len(obs))
+        k = 3
+        splitter = NSplitter(lower, higher, k)
+        res = splitter.eval(obs)
+        correct = 2
+        self.assertEqual(res, correct)
+
+        obs = [-5, -5,-2, -3, -3.334, -3, -3.334, -1, -1]
+        res = splitter.eval(obs)
+        correct = 0
+        self.assertEqual(res, correct)
+
+        obs = [5, 5, 2, 3, 3.334, 3, 3.334, 1, 1]
+        res = splitter.eval(obs)
+        correct = 1
+        self.assertEqual(res, correct)
 
 class TestDiscretizer(unittest.TestCase):
     def setUp(self):

@@ -6,13 +6,14 @@ from shaner.aggregater.entity.achiever import \
 
 
 id2achiever = {
+    "SingleFetchPickAndPlace-v0": FetchPickAndPlaceAchiever,
     "FetchPickAndPlace-v1": FetchPickAndPlaceAchiever,
     "PinBall-v0": PinballAchiever,
     "Pinball-Subgoal-v0": PinballAchiever,
     "Fourrooms-v0": FourroomsAchiever,
     "ConstFourrooms-v0": FourroomsAchiever,
     "DiagonalFourrooms-v0": FourroomsAchiever,
-    "DiagonalPartialFourrooms-v0": FourroomsAchiever
+    "DiagonalPartialFourrooms-v0": FourroomsAchiever,
 }
 
 

@@ -22,8 +22,7 @@ class Discretizer(AbstractAggregater):
         self.n_states = n ** self.shape[0]
 
     def __call__(self, obs, done):
-        three_ary = self.splitter.eval(obs)
-        return n_ary2decimal(three_ary, self.n)
+        return self.splitter.eval(obs)
 
     def __create_splitter(self, box, clip_range):
         if clip_range is not None:

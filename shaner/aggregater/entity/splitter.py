@@ -1,5 +1,6 @@
 import logging
 import numpy as np
+from shaner.utils import n_ary2decimal
 
 logger = logging.getLogger(__name__)
 
@@ -36,4 +37,18 @@ class Splitter:
             idxs = np.argwhere(target_bool)
             res[idxs] = j
         assert len(np.where(res < 0)[0]) == 0
-        return res
+        return n_ary2decimal(res, self.k)
+
+
+class NSplitter(Splitter):
+    def __init__(self, low, high, k):
+        # Create k abstract states. (k-1) splitted states and the other state.
+        super().__init__(low, high, k-1)
+
+    def eval(self, obs):
+        for i in range(self.k):
+            lower = self._ranges["lower"][i]
+            higher = self._ranges["higher"][i]
+            if all(lower <= obs) and all(obs <= higher):
+                return i
+        return self.k

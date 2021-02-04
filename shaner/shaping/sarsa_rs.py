@@ -11,7 +11,8 @@ class SarsaRS:
                                                      params['params'])
         self.vfunc = ValueFactory().create(params['vid'],
                                            n_states=self.aggregater.n_states,
-                                           env=env)
+                                           env=env,
+                                           values=params.get('values'))
         # TODO factory method pattern
         self.high_reward = HighReward(gamma=gamma)
         self.t = 0  # timesteps during abstract states.
