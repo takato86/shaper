@@ -1,7 +1,7 @@
 import numpy as np
 from gym.spaces import Box, Dict
 from shaner.utils import get_box, n_ary2decimal
-from shaner.aggregater.entity.splitter import Splitter
+from shaner.aggregater.entity.splitter import Splitter, NSplitter
 
 
 class AbstractAggregater:
@@ -35,6 +35,20 @@ class Discretizer(AbstractAggregater):
 
     def get_n_states(self):
         return self.n_states
+
+
+class NDiscretizer(Discretizer):
+    def __init__(self, env, n, clip_range=None):
+        super().__init__(env, n, clip_range)
+    
+    def __create_splitter(self, box, clip_range):
+        if clip_range is not None:
+            low = np.array([-clip_range] * self.shape[0])
+            high = np.array([clip_range] * self.shape[0])
+        else:
+            low = box.low
+            high = box.high
+        return NSplitter(low, high, self.n)
 
 
 class ExampleTransformer(AbstractAggregater):
