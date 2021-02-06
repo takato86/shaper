@@ -40,6 +40,9 @@ class Discretizer(AbstractAggregater):
 class NDiscretizer(Discretizer):
     def __init__(self, env, n, clip_range=None):
         super().__init__(env, n, clip_range)
+        obs_box = get_box(env.observation_space)
+        self.n_states = n
+        self.splitter = self.__create_splitter(obs_box, clip_range)
     
     def __create_splitter(self, box, clip_range):
         if clip_range is not None:
