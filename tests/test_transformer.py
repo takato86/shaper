@@ -59,19 +59,19 @@ class TestDiscretizer(unittest.TestCase):
 class TestFetchPickAndPlaceAchiever(unittest.TestCase):
     def setUp(self):
         self.env = gym.make('FetchPickAndPlace-v1')
-        self.achiever = FetchPickAndPlaceAchiever(0.01, 25)
 
     def testEval(self):
+        achiever = FetchPickAndPlaceAchiever(0.01, 25)
         obs = np.full(25, 0)
-        res = self.achiever.eval(obs, 0)
+        res = achiever.eval(obs, 0)
         correct = True
         self.assertEqual(res, correct)
         obs = np.full(25, 0.5)
-        res = self.achiever.eval(obs, 0)
+        res = achiever.eval(obs, 0)
         correct = False
         self.assertEqual(res, correct)
         obs = np.full(25, 0.01)
-        res = self.achiever.eval(obs, 1)
+        res = achiever.eval(obs, 1)
         correct = True
         self.assertEqual(res, correct)
 

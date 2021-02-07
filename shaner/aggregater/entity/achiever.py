@@ -54,9 +54,19 @@ class PinballAchiever(AbstractAchiever):
 
 
 class FetchPickAndPlaceAchiever(AbstractAchiever):
-    def __init__(self, _range, n_obs, **params):
+    def __init__(self, _range, n_obs, subgs, **params):
+        """initialize
+
+        Args:
+            _range (float): the range to judge whether achieving subgoals.
+            n_obs (int): the dimension size of observations
+            subgs (np.ndarray): subgoal numpy list.
+        """
         super().__init__(_range, n_obs)
-        self.subgoals = self.__generate_subgoals()  # n_obs=25
+        if subgs is not None:
+            self.subgoals = subgs
+        else:
+            self.subgoals = self.__generate_subgoals()  # n_obs=25
 
     def eval(self, obs, current_state):
         if len(self.subgoals) <= current_state:
@@ -80,3 +90,5 @@ class FetchPickAndPlaceAchiever(AbstractAchiever):
         # subgoal2[6:9] = [0, 0, 0]
         subgoal2[6:11] = [0, 0, 0, 0.02, 0.02]
         return [subgoal1, subgoal2]
+
+
