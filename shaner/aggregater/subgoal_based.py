@@ -2,7 +2,8 @@ from shaner.aggregater.core import AbstractAggregater
 from shaner.aggregater.entity.achiever import \
     FetchPickAndPlaceAchiever, \
     PinballAchiever, \
-    FourroomsAchiever
+    FourroomsAchiever, \
+    CrowdSimAchiever
 
 
 id2achiever = {
@@ -14,6 +15,7 @@ id2achiever = {
     "ConstFourrooms-v0": FourroomsAchiever,
     "DiagonalFourrooms-v0": FourroomsAchiever,
     "DiagonalPartialFourrooms-v0": FourroomsAchiever,
+    "CrowdSim-v0": CrowdSimAchiever
 }
 
 

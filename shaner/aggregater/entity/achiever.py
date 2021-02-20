@@ -80,3 +80,27 @@ class FetchPickAndPlaceAchiever(AbstractAchiever):
         # subgoal2[6:9] = [0, 0, 0]
         subgoal2[6:11] = [0, 0, 0, 0.02, 0.02]
         return [subgoal1, subgoal2]
+
+
+class CrowdSimAchiever(AbstractAchiever):
+    def __init__(self, _range, n_obs, **params):
+        super().__init__(_range, n_obs)
+        self.subgoals = self.__generate_subgoals()
+    
+    def eval(self, state, current_state):
+        # state: JointState: self_state, human_states
+        import pdb; pdb.set_trace()
+        if current_state >= len(self.subgoals):
+            return False
+        
+
+    def __generate_subgoals(self):
+        # 相対座標により指定
+        # v_rとv_hの差分のcosが1；直角に交わるかつ、robotがcell_sizeよりhumanの後ろを通る。
+        return [
+            {
+                "relative_velocity_angle": 0,  # 相対角度
+                "dist": 2  # 人のpositionを原点とした相対座標
+            }
+        ]
+        
