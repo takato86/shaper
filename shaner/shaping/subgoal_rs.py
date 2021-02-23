@@ -16,6 +16,7 @@ class SubgoalRS:
         self.t = 0
         self.pz = None
         self.p_potential = 0
+        self.aggregater.reset()
 
     def start(self, obs):
         self.pz = self.aggregater(obs, False)
@@ -24,7 +25,7 @@ class SubgoalRS:
         # import pdb; pdb.set_trace()
         if self.p_potential is None:
             self.pz = self.aggregater(pre_obs, False)
-        z = self.aggregater(obs, done)
+        z = self.aggregater(obs)
         if self.pz == z:
             self.t += 1
         else:

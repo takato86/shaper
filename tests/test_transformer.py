@@ -1,7 +1,7 @@
 from shaner.aggregater import Discretizer
 from shaner.aggregater import Splitter, NSplitter
 from shaner.aggregater import FetchPickAndPlaceAchiever,\
-    FourroomsAchiever, PinballAchiever
+    FourroomsAchiever, PinballAchiever, CrowdSimAchiever
 from shaner.utils import n_ary2decimal
 import gym
 import gym_pinball
@@ -105,3 +105,66 @@ class TestPinballAchiever(unittest.TestCase):
         for obs, a_state, correct in zip(obses, a_states, corrects):
             res = achiever.eval(obs, a_state)
             self.assertEqual(res, correct)
+
+
+class TestCrowdSimAchiever(unittest.TestCase):
+    def setUp(self):
+        _range = {
+            'dist': 1,
+            'angle': 10
+        }
+        n_obs = -1
+        self.achiever = CrowdSimAchiever(_range, n_obs)
+
+    def testCalcAngle(self):
+        vec1 = [1, 0]
+        vec2 = [0, 1]
+        predict = self.achiever._CrowdSimAchiever__calc_angle(vec1, vec2)        
+        correct = 90
+        self.assertEqual(predict, correct)
+
+    def testCalcDist(self):
+        vec1 = [1, 0]
+        vec2 = [0, 1]
+        predict = self.achiever._CrowdSimAchiever__calc_dist(vec1, vec2)        
+        correct = np.sqrt(2)
+        self.assertEqual(predict, correct)
+
+    def testInRange(self):
+        basis = {
+            "dist": 3,
+            "angle": 90
+        }
+        key = "dist"
+        target = 4
+        predict = self.achiever._CrowdSimAchiever__in_range(basis, target, key)
+        correct = True
+        self.assertEqual(predict, correct)
+        target = 4.1
+        predict = self.achiever._CrowdSimAchiever__in_range(basis, target, key)
+        correct = False
+        self.assertEqual(predict, correct)
+        target = 2
+        predict = self.achiever._CrowdSimAchiever__in_range(basis, target, key)
+        correct = True
+        self.assertEqual(predict, correct)
+        target = 1.9
+        predict = self.achiever._CrowdSimAchiever__in_range(basis, target, key)
+        correct = False
+        self.assertEqual(predict, correct)
+        key = "angle"
+        target = 100
+        predict = self.achiever._CrowdSimAchiever__in_range(basis, target, key)
+        correct = True
+        self.assertEqual(predict, correct)
+        target = 101
+        predict = self.achiever._CrowdSimAchiever__in_range(basis, target, key)
+        correct = False
+        self.assertEqual(predict, correct)
+        target = 80
+        predict = self.achiever._CrowdSimAchiever__in_range(basis, target, key)
+        correct = True
+        self.assertEqual(predict, correct)
+
+    def testEval(self):
+        pass

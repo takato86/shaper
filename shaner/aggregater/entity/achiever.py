@@ -2,6 +2,7 @@ import logging
 import numpy as np
 import pandas as pd
 import os
+import math
 from shaner.utils import l2_norm_dist
 
 logger = logging.getLogger(__name__)
@@ -84,23 +85,63 @@ class FetchPickAndPlaceAchiever(AbstractAchiever):
 
 class CrowdSimAchiever(AbstractAchiever):
     def __init__(self, _range, n_obs, **params):
-        super().__init__(_range, n_obs)
+        super().__init__(_range, n_obs)  # range: dict{"dict", "angle"}
         self.subgoals = self.__generate_subgoals()
     
     def eval(self, state, current_state):
         # state: JointState: self_state, human_states
-        import pdb; pdb.set_trace()
+        # TODO in the environment with more two humans
         if current_state >= len(self.subgoals):
             return False
-        
+        subgoal = self.subgoals[current_state]
+        robot_state = state.self_state
+        human_state = state.human_states[0]
+        # extract coordinates
+        robot_coord = [robot_state.px, robot_state.py]
+        human_coord = [human_state.px, human_state.py]
+        # extract velocity
+        robot_vel = [robot_state.vx, robot_state.vy]
+        human_vel = [human_state.vx, human_state.vy]
+        r_h_dist = self.__calc_dist(robot_coord, human_coord)
+        r_h_angle = abs(self.__calc_angle(robot_vel, human_vel))
+        b_dist = self.__in_range(subgoal, r_h_dist, key="dist")
+        b_angle = self.__in_range(subgoal, r_h_angle, key="angle")
+        return b_dist and b_angle
 
     def __generate_subgoals(self):
         # 相対座標により指定
         # v_rとv_hの差分のcosが1；直角に交わるかつ、robotがcell_sizeよりhumanの後ろを通る。
         return [
             {
-                "relative_velocity_angle": 0,  # 相対角度
-                "dist": 2  # 人のpositionを原点とした相対座標
+                "angle": 90,  # 相対速度ベクトルの偏角[degree]
+                "dist": 2  # 人のpositionを原点とした相対座標, CrowdSimから参照
             }
         ]
-        
+    
+    def __calc_angle(self, vec1, vec2):
+        """Return degree of angle between vec1 and vec2
+
+        Args:
+            vec1 ([list]): [base vector]
+            vec2 ([list]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+        cos = vec1[0]*vec2[0] + vec1[1]*vec2[1]
+        sin = vec1[0]*vec2[1] - vec2[0]*vec1[1]
+        atan2_rad = math.atan2(sin, cos)
+        return math.degrees(atan2_rad) 
+
+    def __calc_dist(self, vec1, vec2):
+        diff = np.array(vec1) - np.array(vec2)
+        return np.linalg.norm(diff)
+
+    def __in_range(self, basis, target, key=None):
+        if key is None:
+            upper = basis + self._range
+            lower = basis - self._range
+        else:
+            upper = basis[key] + self._range[key]
+            lower = basis[key] - self._range[key]
+        return  upper >= target and target >= lower

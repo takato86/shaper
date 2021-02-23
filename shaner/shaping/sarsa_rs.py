@@ -17,9 +17,12 @@ class SarsaRS:
         self.high_reward = HighReward(gamma=gamma)
         self.t = 0  # timesteps during abstract states.
         self.pz = None  # previous abstract state.
+        # for analysis varibles
+        self.counter_transit = 0
 
     def start(self, obs):
-        self.pz = self.aggregater(obs, False)
+        self.counter_transit = 0
+        self.pz = self.aggregater(obs)
 
     def __train(self, pz, z, reward, done):
         self.t += 1
@@ -35,8 +38,10 @@ class SarsaRS:
     def perform(self, pre_obs, obs, reward, done):
         # import pdb; pdb.set_trace()
         if self.pz is None:
-            self.pz = self.aggregater(pre_obs, False)
-        z = self.aggregater(obs, done)
+            self.pz = self.aggregater(pre_obs)
+        z = self.aggregater(obs)
+        if self.pz != z:
+            self.counter_transit += 1
         v = decimal_calc(
             self.gamma * self.potential(z),
             self.potential(self.pz),
@@ -57,3 +62,7 @@ class SarsaRS:
         self.t = 0
         self.pz = None
         self.high_reward.reset()
+        self.aggregater.reset()
+
+    def get_counter_transit(self):
+        return self.counter_transit

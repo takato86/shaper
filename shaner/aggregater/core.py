@@ -11,6 +11,9 @@ class AbstractAggregater:
     def get_n_states(self):
         raise NotImplementedError
 
+    def reset(self):
+        raise NotImplementedError
+
 
 class Discretizer(AbstractAggregater):
     def __init__(self, env, n, clip_range=None):
@@ -32,6 +35,9 @@ class Discretizer(AbstractAggregater):
             low = box.low
             high = box.high
         return Splitter(low, high, self.n)
+
+    def reset(self):
+        pass
 
     def get_n_states(self):
         return self.n_states
