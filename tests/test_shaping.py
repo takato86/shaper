@@ -45,9 +45,9 @@ class SarsaRSTest(unittest.TestCase):
         self.assertEqual(0, self.rs.vfunc(0))
         self.assertEqual(0, self.rs.vfunc(0))
         v = self.rs.perform(pre_obs, obs, reward, done)
-        print(self.rs.pz, self.rs.aggregater(obs, False))
-        self.assertEqual(0.001, self.rs.vfunc(self.rs.aggregater(pre_obs, False)))
-        self.assertEqual(0, self.rs.vfunc(self.rs.aggregater(obs, False)))
+        print(self.rs.pz, self.rs.aggregater(obs))
+        self.assertEqual(0.001, self.rs.vfunc(self.rs.aggregater(pre_obs)))
+        self.assertEqual(0, self.rs.vfunc(self.rs.aggregater(obs)))
         # pre_potentialは前試行の結果を使うので、0
         self.assertEqual(0, v)
 
@@ -74,7 +74,7 @@ class DTATest(unittest.TestCase):
     def test_init_potential(self):
         rs = shaner.SarsaRS(**self.config)
         obs = np.full(25, 0)
-        z = rs.aggregater(obs, False)
+        z = rs.aggregater(obs)
         self.assertEqual(0, rs.potential(z))
 
     def test_init_value(self):

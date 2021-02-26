@@ -7,8 +7,8 @@ class HighReward:
     def __call__(self):
         return self.value
 
-    def update(self, reward):
-        self.value = self.gamma * self.value + reward
+    def update(self, reward, t):
+        self.value += self.gamma**t * reward
 
     def reset(self):
         self.value = 0
