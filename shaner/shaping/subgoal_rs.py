@@ -1,6 +1,11 @@
+import logging
 from shaner.factory import ValueFactory, AggregaterFactory
 from shaner.reward import HighReward
 from shaner.utils import decimal_calc
+
+
+logger = logging.getLogger(__name__)
+
 
 class SubgoalRS:
     def __init__(self, gamma, lr, env, params):

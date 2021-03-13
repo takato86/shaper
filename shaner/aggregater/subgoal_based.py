@@ -1,9 +1,14 @@
+import logging
+
 from shaner.aggregater.core import AbstractAggregater
 from shaner.aggregater.entity.achiever import \
     FetchPickAndPlaceAchiever, \
     PinballAchiever, \
     FourroomsAchiever, \
     CrowdSimAchiever
+
+
+logger = logging.getLogger(__name__)
 
 
 id2achiever = {
@@ -29,10 +34,10 @@ class DTA(AbstractAggregater):
     def __call__(self, obs):
         if self.achiever.eval(obs, self.current_state):
             self.current_state += 1
+            logger.debug("Subgoal is achieved! Transit to {}".format(self.current_state))
             return self.current_state
         else:
-            ret = self.current_state
-            return ret
+            return self.current_state
 
     def reset(self):
         self.current_state = 0

@@ -8,8 +8,6 @@ from shaner.utils import l2_norm_dist
 logger = logging.getLogger(__name__)
 
 
-
-
 class AbstractAchiever:
     def __init__(self, _range, n_obs):
         self._range = _range
@@ -25,13 +23,13 @@ class AbstractAchiever:
 class FourroomsAchiever(AbstractAchiever):
     def __init__(self, _range, n_obs, subgoals, **params):
         super().__init__(_range, n_obs)
-        self.subgoals = subgoals  # 2d-ndarray shape(#obs, #subgoals)
+        self.subgoals = subgoals[0]  # TODO # 2d-ndarray shape(#obs, #subgoals)
 
     def eval(self, obs, current_state):
         if len(self.subgoals) <= current_state:
             return False
-        subgoal = np.array(self.subgoals[current_state])
-        return all(obs == subgoal)
+        subgoal = self.subgoals[current_state]
+        return obs == subgoal
 
 
 class PinballAchiever(AbstractAchiever):
@@ -144,7 +142,7 @@ class CrowdSimAchiever(AbstractAchiever):
         robot_coord = [robot_state.px, robot_state.py]
         human_coord = [human_state.px, human_state.py]
         r_h_dist = self.__calc_dist(robot_coord, human_coord)
-        b_dist = r_h_dist > 1.5  # 近づきすぎない
+        b_dist = r_h_dist > 0.5  # 近づきすぎない
         return b_angle and b_dist
 
     def __generate_subgoals(self):
