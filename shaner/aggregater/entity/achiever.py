@@ -99,6 +99,15 @@ class CrowdSimAchiever(AbstractAchiever):
         self.subgoals = self.__generate_subgoals()
     
     def eval(self, state, current_state):
+        """check whether a state is a subgoal 
+
+        Args:
+            state (ndarray): state from env.
+            current_state (int): subgoal indicator.
+
+        Returns:
+            bool: is a state an subgoal
+        """
         # state: JointState: self_state, human_states
         # TODO in the environment with more two humans
         if current_state >= len(self.subgoals):
@@ -106,54 +115,23 @@ class CrowdSimAchiever(AbstractAchiever):
         subgoal = self.subgoals[current_state]
         robot_state = state.self_state
         human_state = state.human_states[0]
-        return self.check_subgoal_v2(subgoal, robot_state, human_state)
+        return self.check_subgoal(subgoal, robot_state, human_state)
 
-    def check_subgoal_v0(self, subgoal, robot_state, human_state):
-        robot_coord = [robot_state.px, robot_state.py]
-        human_coord = [human_state.px, human_state.py]
-        r_h_dist = self.__calc_dist(robot_coord, human_coord)
-        b_dist = self.__in_range(subgoal, r_h_dist, key="dist")
-        return b_dist
-    
-    def check_subgoal_v1(self, subgoal, robot_state, human_state):
-        r_h_anble = self.__get_r_h_angle(robot_state, human_state)
-        b_angle = self.__in_range(subgoal, r_h_angle, key="angle")
-        return b_angle
+    def check_subgoal(self, subgoal, robot_state, human_state):
+        """check that the relative position vector betweem human and robot is in the range.
 
-    def check_subgoal_v2(self, subgoal, robot_state, human_state):
+        Args:
+            subgoal (dict): [description]
+            robot_state (ndarray): [description]
+            human_state (ndarray): [description]
+
+        Returns:
+            bool: [description]
+        """
+        # 人とロボットの相対位置ベクトルを算出し、そのベクトルがサブゴールに設定されている範囲内にあるかのチェック
         r_h_angle = self.__get_r_h_angle(robot_state, human_state)
         b_angle = self.__in_range(subgoal, r_h_angle, key="angle")
         return b_angle
-
-    def check_subgoal_v4(self, subgoal, robot_state, human_state):
-        r_h_angle = self.__get_r_h_angle(robot_state, human_state)
-        b_angle = self.__in_range(subgoal, r_h_angle, key="angle")
-        robot_coord = [robot_state.px, robot_state.py]
-        human_coord = [human_state.px, human_state.py]
-        r_h_dist = self.__calc_dist(robot_coord, human_coord)
-        b_dist = self.__in_range(subgoal, r_h_dist, key="dist")
-        return b_angle and b_dist
-
-    def check_subgoal_v5(self, subgoal, robot_state, human_state):
-        subgoal1 = {'angle': 0}
-        subgoal2 = {'angle': 180}
-        r_h_angle = self.__get_r_h_angle(robot_state, human_state)
-        b_angle_1 = self.__in_range(subgoal1, r_h_angle, key="angle")
-        b_angle_2 = self.__in_range(subgoal2, r_h_angle, key="angle")
-        robot_coord = [robot_state.px, robot_state.py]
-        human_coord = [human_state.px, human_state.py]
-        r_h_dist = self.__calc_dist(robot_coord, human_coord)
-        b_dist = self.__in_range(subgoal, r_h_dist, key="dist")
-        return (b_angle_1 or b_angle_2) and b_dist
-
-    def check_subgoal_v6(self, subgoal, robot_state, human_state):
-        r_h_angle = self.__get_r_h_angle(robot_state, human_state)
-        b_angle = self.__in_range(subgoal, r_h_angle, key="angle")
-        robot_coord = [robot_state.px, robot_state.py]
-        human_coord = [human_state.px, human_state.py]
-        r_h_dist = self.__calc_dist(robot_coord, human_coord)
-        b_dist = r_h_dist > 0.5  # 近づきすぎない
-        return b_angle and b_dist
 
     def __generate_subgoals(self):
         # 相対座標により指定
@@ -184,10 +162,29 @@ class CrowdSimAchiever(AbstractAchiever):
         return degree
 
     def __calc_dist(self, vec1, vec2):
+        """Calculate the distance between vectors.
+
+        Args:
+            vec1 (list): coordinate
+            vec2 (list): coordinate
+
+        Returns:
+            int: distance
+        """
         diff = np.array(vec1) - np.array(vec2)
         return np.linalg.norm(diff)
 
     def __in_range(self, basis, target, key=None):
+        """Check whehter target is in the range.
+
+        Args:
+            basis (float): [description]
+            target (float): [description]
+            key (string, optional): [description]. Defaults to None.
+
+        Returns:
+            bool: [description]
+        """
         if key is None:
             upper = basis + self._range
             lower = basis - self._range
