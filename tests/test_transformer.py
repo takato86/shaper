@@ -51,9 +51,9 @@ class TestDiscretizer(unittest.TestCase):
     def testTwoAggregate(self):
         obs = [0, 0, 0, 0]
         done = False
-        self.assertEqual(12, self.aggregater(obs, done))
+        self.assertEqual(12, self.aggregater(obs))
         obs = [0, 0.7, 0, 0]
-        self.assertEqual(14, self.aggregater(obs, done))
+        self.assertEqual(14, self.aggregater(obs))
 
 
 class TestFetchPickAndPlaceAchiever(unittest.TestCase):
@@ -167,4 +167,14 @@ class TestCrowdSimAchiever(unittest.TestCase):
         self.assertEqual(predict, correct)
 
     def testEval(self):
-        pass
+        human_vel = [1, 1]
+        human_pos = [2, 2]
+        robot_pos = [-2, -2]
+        h_r_rel_pos = [
+            robot_pos[0] - human_pos[0],
+            robot_pos[1] - human_pos[1]
+        ]
+        predict = self.achiever._CrowdSimAchiever__calc_angle(human_vel, h_r_rel_pos)
+        correct = 180
+        self.assertEqual(correct, predict)
+

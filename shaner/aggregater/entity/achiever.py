@@ -23,13 +23,13 @@ class AbstractAchiever:
 class FourroomsAchiever(AbstractAchiever):
     def __init__(self, _range, n_obs, subgoals, **params):
         super().__init__(_range, n_obs)
-        self.subgoals = subgoals  # 2d-ndarray shape(#obs, #subgoals)
+        self.subgoals = subgoals[0]  # TODO # 2d-ndarray shape(#obs, #subgoals)
 
     def eval(self, obs, current_state):
         if len(self.subgoals) <= current_state:
             return False
-        subgoal = np.array(self.subgoals[current_state])
-        return all(obs == subgoal)
+        subgoal = self.subgoals[current_state]
+        return obs == subgoal
 
 
 class PinballAchiever(AbstractAchiever):
@@ -106,25 +106,62 @@ class CrowdSimAchiever(AbstractAchiever):
         subgoal = self.subgoals[current_state]
         robot_state = state.self_state
         human_state = state.human_states[0]
-        # extract coordinates
+        return self.check_subgoal_v2(subgoal, robot_state, human_state)
+
+    def check_subgoal_v0(self, subgoal, robot_state, human_state):
         robot_coord = [robot_state.px, robot_state.py]
         human_coord = [human_state.px, human_state.py]
-        # extract velocity
-        robot_vel = [robot_state.vx, robot_state.vy]
-        human_vel = [human_state.vx, human_state.vy]
         r_h_dist = self.__calc_dist(robot_coord, human_coord)
-        r_h_angle = abs(self.__calc_angle(robot_vel, human_vel))
         b_dist = self.__in_range(subgoal, r_h_dist, key="dist")
+        return b_dist
+    
+    def check_subgoal_v1(self, subgoal, robot_state, human_state):
+        r_h_anble = self.__get_r_h_angle(robot_state, human_state)
         b_angle = self.__in_range(subgoal, r_h_angle, key="angle")
-        return b_dist and b_angle
+        return b_angle
+
+    def check_subgoal_v2(self, subgoal, robot_state, human_state):
+        r_h_angle = self.__get_r_h_angle(robot_state, human_state)
+        b_angle = self.__in_range(subgoal, r_h_angle, key="angle")
+        return b_angle
+
+    def check_subgoal_v4(self, subgoal, robot_state, human_state):
+        r_h_angle = self.__get_r_h_angle(robot_state, human_state)
+        b_angle = self.__in_range(subgoal, r_h_angle, key="angle")
+        robot_coord = [robot_state.px, robot_state.py]
+        human_coord = [human_state.px, human_state.py]
+        r_h_dist = self.__calc_dist(robot_coord, human_coord)
+        b_dist = self.__in_range(subgoal, r_h_dist, key="dist")
+        return b_angle and b_dist
+
+    def check_subgoal_v5(self, subgoal, robot_state, human_state):
+        subgoal1 = {'angle': 0}
+        subgoal2 = {'angle': 180}
+        r_h_angle = self.__get_r_h_angle(robot_state, human_state)
+        b_angle_1 = self.__in_range(subgoal1, r_h_angle, key="angle")
+        b_angle_2 = self.__in_range(subgoal2, r_h_angle, key="angle")
+        robot_coord = [robot_state.px, robot_state.py]
+        human_coord = [human_state.px, human_state.py]
+        r_h_dist = self.__calc_dist(robot_coord, human_coord)
+        b_dist = self.__in_range(subgoal, r_h_dist, key="dist")
+        return (b_angle_1 or b_angle_2) and b_dist
+
+    def check_subgoal_v6(self, subgoal, robot_state, human_state):
+        r_h_angle = self.__get_r_h_angle(robot_state, human_state)
+        b_angle = self.__in_range(subgoal, r_h_angle, key="angle")
+        robot_coord = [robot_state.px, robot_state.py]
+        human_coord = [human_state.px, human_state.py]
+        r_h_dist = self.__calc_dist(robot_coord, human_coord)
+        b_dist = r_h_dist > 0.5  # 近づきすぎない
+        return b_angle and b_dist
 
     def __generate_subgoals(self):
         # 相対座標により指定
         # v_rとv_hの差分のcosが1；直角に交わるかつ、robotがcell_sizeよりhumanの後ろを通る。
         return [
             {
-                "angle": 90,  # 相対速度ベクトルの偏角[degree]
-                "dist": 2  # 人のpositionを原点とした相対座標, CrowdSimから参照
+                "angle": 180,  # humanの速度ベクトルとhumanとrobotの相対座標[degree]
+                "dist": 4  # 人のpositionを原点とした相対座標, CrowdSimから参照
             }
         ]
     
@@ -141,7 +178,10 @@ class CrowdSimAchiever(AbstractAchiever):
         cos = vec1[0]*vec2[0] + vec1[1]*vec2[1]
         sin = vec1[0]*vec2[1] - vec2[0]*vec1[1]
         atan2_rad = math.atan2(sin, cos)
-        return math.degrees(atan2_rad) 
+        degree = math.degrees(atan2_rad)
+        if degree < 0:
+            degree = 360 + degree
+        return degree
 
     def __calc_dist(self, vec1, vec2):
         diff = np.array(vec1) - np.array(vec2)
@@ -154,4 +194,20 @@ class CrowdSimAchiever(AbstractAchiever):
         else:
             upper = basis[key] + self._range[key]
             lower = basis[key] - self._range[key]
+        if key == "angle":
+            upper = upper % 360
+            lower = lower % 360
         return  upper >= target and target >= lower
+
+    def __get_r_h_angle(self, robot_state, human_state):
+        r_h_rel_pos = [
+            robot_state.px - human_state.px,
+            robot_state.py - human_state.py
+        ]
+        human_vel = [human_state.vx, human_state.vy]
+        if human_vel[0] == 0 and human_vel[1] == 0:
+            # 速度が無い場合は0
+            r_h_angle = +0
+        else:
+            r_h_angle = self.__calc_angle(human_vel, r_h_rel_pos)
+        return r_h_angle

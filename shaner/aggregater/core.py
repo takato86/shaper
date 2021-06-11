@@ -5,7 +5,7 @@ from shaner.aggregater.entity.splitter import Splitter, NSplitter
 
 
 class AbstractAggregater:
-    def __call__(self, obs, done):
+    def __call__(self, obs):
         raise NotImplementedError
     
     def get_n_states(self):
@@ -24,7 +24,7 @@ class Discretizer(AbstractAggregater):
         self.splitter = self.__create_splitter(obs_box, clip_range)
         self.n_states = n ** self.shape[0]
 
-    def __call__(self, obs, done):
+    def __call__(self, obs):
         return self.splitter.eval(obs)
 
     def __create_splitter(self, box, clip_range):
@@ -64,7 +64,8 @@ class ExampleTransformer(AbstractAggregater):
     def __init__(self, env):
         self.env = env
 
-    def __call__(self, obs, done):
+    def __call__(self, obs):
         # Plese write your transfromation function from raw observation to
         # abstract state.
         pass
+
