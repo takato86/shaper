@@ -96,7 +96,7 @@ class CrowdSimAchiever(AbstractAchiever):
         subgoal = self.subgoals[current_state]
         robot_state = state.self_state
         human_state = state.human_states[0]
-        return self.check_subgoal_v6(subgoal, robot_state, human_state)
+        return self.check_subgoal_v2(subgoal, robot_state, human_state)
 
     def check_subgoal_v0(self, subgoal, robot_state, human_state):
         robot_coord = [robot_state.px, robot_state.py]

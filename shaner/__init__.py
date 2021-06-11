@@ -1,5 +1,6 @@
 from shaner import *
 from shaner.shaping import *
+from shaner.aggregater.subgoal_based import Checker
 
 __copyright__ = 'Copyright (C) 2021 takato86'
 __version__ = '1.0.1'  # testpy: 1.0.1[current]
