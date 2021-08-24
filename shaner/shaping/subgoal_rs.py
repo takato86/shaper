@@ -1,6 +1,5 @@
 import logging
-from shaner.factory import ValueFactory, AggregaterFactory
-from shaner.reward import HighReward
+from shaner.factory import AggregaterFactory
 from shaner.utils import decimal_calc
 
 

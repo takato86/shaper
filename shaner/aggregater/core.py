@@ -1,6 +1,5 @@
 import numpy as np
-from gym.spaces import Box, Dict
-from shaner.utils import get_box, n_ary2decimal
+from shaner.utils import get_box
 from shaner.aggregater.entity.splitter import Splitter, NSplitter
 
 

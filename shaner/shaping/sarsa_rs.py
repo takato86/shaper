@@ -4,7 +4,7 @@ from shaner.utils import decimal_calc
 
 
 class SarsaRS:
-    def __init__(self, gamma, lr, env, params, is_success=None):
+    def __init__(self, gamma, lr, env, params, is_success):
         self.gamma = gamma
         self.lr = lr
         self.aggregater = AggregaterFactory().create(params['aggr_id'],
@@ -27,13 +27,14 @@ class SarsaRS:
 
     def __train(self, z, reward, done, info):
         self.t += 1
-        if self.pz != z or self.is_success(done, info):
+        # 成功軌跡でゴール報酬が0の場合、ターゲットとすると不都合
+        # ゴール: 0、ステップ: -1の場合抽象状態空間のゴールを含む状態の価値関数が小さくなる。
+        is_end_update = self.is_success(done, info) and self.high_reward() > 0
+        if self.pz != z or is_end_update:
             assert self.t > 0
-            if self.is_success(done, info):
-                # 成功したときだけこの式。失敗した場合は更新を行わない。
-                target = self.high_reward() + self.gamma ** self.t * reward
-            else:
-                target = self.high_reward() + self.gamma ** self.t * self.vfunc(z)
+            # 成功した時はrewardをValueとする。
+            value = reward if self.is_success(done, info) else self.vfunc(z)
+            target = self.high_reward() + self.gamma ** self.t * value
             td_error = target - self.vfunc(self.pz)
             self.vfunc.update(self.pz,
                               self.vfunc(self.pz) + self.lr * td_error)
@@ -41,8 +42,7 @@ class SarsaRS:
             self.high_reward.reset()
         self.high_reward.update(reward, self.t)
 
-    def perform(self, pre_obs, obs, reward, done, info=None):
-        # import pdb; pdb.set_trace()
+    def perform(self, pre_obs, obs, reward, done, info):
         if self.pz is None:
             self.pz = self.aggregater(pre_obs)
         z = self.aggregater(obs)
@@ -53,9 +53,8 @@ class SarsaRS:
             self.potential(self.pz),
             "-"
         )
+        # trainの前に価値関数を計算しておく。
         self.__train(z, reward, done, info)
-        # trainでself.pzの価値関数が更新されたときの挙動は？
-        # Dynamic PBRSに従えば、更新前の値を使うべき
         self.pz = z
         if done:
             self.reset()

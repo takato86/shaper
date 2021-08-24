@@ -1,3 +1,4 @@
+import os
 import logging
 
 from shaner.aggregater.core import AbstractAggregater
@@ -29,7 +30,7 @@ logger = logging.getLogger(__name__)
 # TODO achieverを渡すように修正したので関連プログラムは要修正
 # ドメインに依るのでachieverの作成はユーザに任せる。
 class DTA(AbstractAggregater):
-    def __init__(self, achiever, **params):
+    def __init__(self, achiever):
         self.achiever = achiever
         self.current_state = 0
         self.n_states = len(self.achiever.subgoals) + 1
@@ -38,7 +39,7 @@ class DTA(AbstractAggregater):
         if self.achiever.eval(obs, self.current_state):
             self.current_state += 1
             logger.debug(
-                "Subgoal is achieved! Transit to {}".format(self.current_state)
+                "Subgoal is achieved! Transit to {} at {}".format(self.current_state, os.getpid())
             )
             return self.current_state
         else:
@@ -52,7 +53,7 @@ class DTA(AbstractAggregater):
 
 
 class Checker(AbstractAggregater):
-    def __init__(self, achiever, **params):
+    def __init__(self, achiever):
         self.achiever = achiever
         # id2achiever[env_id](n_obs=n_obs, _range=_range,
         #                                     **params)

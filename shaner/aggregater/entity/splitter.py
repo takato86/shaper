@@ -9,7 +9,7 @@ class Splitter:
     def __init__(self, low, high, k):
         self.k = k
         self._ranges = self.__make(low, high)
-    
+
     def __make(self, low, high):
         quantile = (high - low) / self.k
         splitter = {"lower": [], "higher": []}
@@ -23,13 +23,14 @@ class Splitter:
             splitter["higher"].append(higher)
         assert len(splitter["lower"]) == len(splitter["higher"])
         return splitter
-    
+
     def eval(self, obs):
         logger.debug(obs)
         if type(obs) != np.ndarray:
             obs = np.array(obs)
         res = np.full(obs.shape, -1)
-        for j, _range in enumerate(zip(self._ranges["lower"], self._ranges["higher"])):
+        for j, _range in enumerate(zip(self._ranges["lower"],
+                                       self._ranges["higher"])):
             lower, higher = _range
             lower_bool = lower <= obs
             higher_bool = obs <= higher
