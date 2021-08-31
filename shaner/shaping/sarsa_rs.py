@@ -13,7 +13,6 @@ class SarsaRS:
                                            n_states=self.aggregater.n_states,
                                            env=env,
                                            values=params.get('values'))
-        # TODO factory method pattern
         self.high_reward = HighReward(gamma=gamma)
         self.t = 0  # timesteps during abstract states.
         self.pz = None  # previous abstract state.
@@ -29,18 +28,20 @@ class SarsaRS:
         self.t += 1
         # 成功軌跡でゴール報酬が0の場合、ターゲットとすると不都合
         # ゴール: 0、ステップ: -1の場合抽象状態空間のゴールを含む状態の価値関数が小さくなる。
-        is_end_update = self.is_success(done, info) and self.high_reward() > 0
+        is_end_update = self.is_success(done, info)
         if self.pz != z or is_end_update:
             assert self.t > 0
             # 成功した時はrewardをValueとする。
-            value = reward if self.is_success(done, info) else self.vfunc(z)
+            value = reward if is_end_update else self.vfunc(z)
             target = self.high_reward() + self.gamma ** self.t * value
             td_error = target - self.vfunc(self.pz)
             self.vfunc.update(self.pz,
                               self.vfunc(self.pz) + self.lr * td_error)
             self.t = 0
             self.high_reward.reset()
-        self.high_reward.update(reward, self.t)
+        if not is_end_update:
+            # 終了した場合は次状態の価値関数が報酬だから、ここの更新はしない。
+            self.high_reward.update(reward, self.t)
 
     def perform(self, pre_obs, obs, reward, done, info):
         if self.pz is None:

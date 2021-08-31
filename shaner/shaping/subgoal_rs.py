@@ -56,7 +56,7 @@ class SubgoalRS:
             self.rho * self.t,
             "-"
         ), 0.0)
-    
+
     def get_counter_transit(self):
         return self.counter_transit
 
