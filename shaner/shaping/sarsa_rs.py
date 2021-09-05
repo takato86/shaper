@@ -14,7 +14,7 @@ class SarsaRS:
                                            env=env,
                                            values=params.get('values'))
         self.high_reward = HighReward(gamma=gamma)
-        self.t = 0  # timesteps during abstract states.
+        self.t = -1  # timesteps during abstract states.
         self.pz = None  # previous abstract state.
         # for analysis varibles
         self.counter_transit = 0
@@ -29,19 +29,23 @@ class SarsaRS:
         # 成功軌跡でゴール報酬が0の場合、ターゲットとすると不都合
         # ゴール: 0、ステップ: -1の場合抽象状態空間のゴールを含む状態の価値関数が小さくなる。
         is_end_update = self.is_success(done, info)
+        self.high_reward.update(reward, self.t)
+
         if self.pz != z or is_end_update:
-            assert self.t > 0
+            assert self.t >= 0
+
             # 成功した時はrewardをValueとする。
-            value = reward if is_end_update else self.vfunc(z)
-            target = self.high_reward() + self.gamma ** self.t * value
+            if is_end_update:
+                target = self.high_reward()
+            else:
+                target = self.high_reward() + \
+                    self.gamma ** (self.t + 1) * self.vfunc(z)
+
             td_error = target - self.vfunc(self.pz)
             self.vfunc.update(self.pz,
                               self.vfunc(self.pz) + self.lr * td_error)
-            self.t = 0
+            self.t = -1
             self.high_reward.reset()
-        if not is_end_update:
-            # 終了した場合は次状態の価値関数が報酬だから、ここの更新はしない。
-            self.high_reward.update(reward, self.t)
 
     def perform(self, pre_obs, obs, reward, done, info):
         if self.pz is None:
