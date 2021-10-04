@@ -4,15 +4,16 @@ from shaner.utils import decimal_calc
 
 
 class SarsaRS:
-    def __init__(self, gamma, lr, env, params, is_success):
+    def __init__(self, gamma, lr, env, aggr_id, abstractor, vid,
+                 is_success, values=None):
         self.gamma = gamma
         self.lr = lr
-        self.aggregater = AggregaterFactory().create(params['aggr_id'],
-                                                     params['params'])
-        self.vfunc = ValueFactory().create(params['vid'],
-                                           n_states=self.aggregater.n_states,
-                                           env=env,
-                                           values=params.get('values'))
+        self.aggregater = AggregaterFactory.create(aggr_id,
+                                                   abstractor)
+        self.vfunc = ValueFactory.create(vid,
+                                         n_states=self.aggregater.n_states,
+                                         env=env,
+                                         values=values)
         self.high_reward = HighReward(gamma=gamma)
         self.t = -1  # timesteps during abstract states.
         self.pz = None  # previous abstract state.

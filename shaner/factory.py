@@ -14,10 +14,14 @@ id2value = {
 
 
 class ValueFactory:
-    def create(self, vid, **params):
-        return id2value[vid](**params)
+    @staticmethod
+    def create(vid, env, n_states, values=None):
+        return id2value[vid](env, n_states, values)
 
 
 class AggregaterFactory:
-    def create(self, _id, params):
-        return id2aggr[_id](**params)
+    @staticmethod
+    def create(_id, abstractor):
+        # abstractorはsplitterとachieverの抽象エンティティ
+        # TODO クラスとして実装
+        return id2aggr[_id](abstractor)

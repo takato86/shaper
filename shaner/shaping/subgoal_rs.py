@@ -7,13 +7,13 @@ logger = logging.getLogger(__name__)
 
 
 class SubgoalRS:
-    def __init__(self, gamma, lr, env, params):
+    def __init__(self, gamma, lr, eta, rho, aggr_id, achiever):
         self.gamma = gamma
         self.lr = lr
-        self.eta = params['eta']
-        self.rho = params['rho']
-        self.aggregater = AggregaterFactory().create(params['aggr_id'],
-                                                     params['params'])
+        self.eta = eta
+        self.rho = rho
+        self.aggregater = AggregaterFactory.create(aggr_id,
+                                                   achiever)
         self.reset()
         self.counter_transit = 0
 
@@ -29,7 +29,7 @@ class SubgoalRS:
 
     def perform(self, pre_obs, obs, reward, done, info=None):
         # import pdb; pdb.set_trace()
-        if self.p_potential is None:
+        if self.pz is None:
             self.pz = self.aggregater(pre_obs)
         z = self.aggregater(obs)
         if self.pz == z:
@@ -62,9 +62,9 @@ class SubgoalRS:
 
 
 class NaiveSRS(SubgoalRS):
-    def __init__(self, gamma, lr, env, params, **kwargs):
-        super().__init__(gamma, lr, env, params)
-    
+    def __init__(self, gamma, lr, eta, rho, aggr_id, achiever):
+        super().__init__(gamma, lr, eta, rho, aggr_id, achiever)
+
     def potential(self, z):
         if self.t == 0:
             return self.eta
