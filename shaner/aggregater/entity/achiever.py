@@ -1,7 +1,6 @@
 import logging
 import numpy as np
 import pandas as pd
-import os
 import math
 from shaner.utils import l2_norm_dist
 
@@ -35,14 +34,17 @@ class FourroomsAchiever(AbstractAchiever):
 class PinballAchiever(AbstractAchiever):
     def __init__(self, _range, n_obs, subgoals, **params):
         super().__init__(_range, n_obs)
-        self.subgoals = subgoals # 2d-ndarray shape(#obs, #subgoals)
+        self.subgoals = subgoals  # 2d-ndarray shape(#obs, #subgoals)
 
     def eval(self, obs, current_state):
         if len(self.subgoals) <= current_state:
             return False
         subgoal = np.array(self.subgoals[current_state])
         idxs = np.argwhere(subgoal == subgoal)  # np.nanでない要素を取り出し
-        b_in = l2_norm_dist(subgoal[idxs].reshape(-1), obs[idxs].reshape(-1)) <= self._range
+        b_in = l2_norm_dist(
+            subgoal[idxs].reshape(-1),
+            obs[idxs].reshape(-1)
+        ) <= self._range
         res = np.all(b_in)
         if res:
             logger.debug("Achieve the subgoal{}".format(current_state))
@@ -73,7 +75,7 @@ class FetchPickAndPlaceAchiever(AbstractAchiever):
         if len(self.subgoals) <= current_state:
             return False
         subgoal = np.array(self.subgoals[current_state])
-        idxs = np.argwhere(subgoal == subgoal) # np.nanでない要素を取り出し
+        idxs = np.argwhere(subgoal == subgoal)  # np.nanでない要素を取り出し
         b_lower = subgoal[idxs] - self._range <= obs[idxs]
         b_higher = obs[idxs] <= subgoal[idxs] + self._range
         res = all(b_lower & b_higher)
@@ -97,7 +99,7 @@ class CrowdSimAchiever(AbstractAchiever):
     def __init__(self, _range, n_obs, **params):
         super().__init__(_range, n_obs)  # range: dict{"dict", "angle"}
         self.subgoals = self.__generate_subgoals()
-    
+
     def eval(self, state, current_state):
         """check whether a state is a subgoal 
 
@@ -118,7 +120,8 @@ class CrowdSimAchiever(AbstractAchiever):
         return self.check_subgoal(subgoal, robot_state, human_state)
 
     def check_subgoal(self, subgoal, robot_state, human_state):
-        """check that the relative position vector betweem human and robot is in the range.
+        """check that the relative position vector betweem human and robot is
+        in the range.
 
         Args:
             subgoal (dict): [description]
@@ -194,7 +197,7 @@ class CrowdSimAchiever(AbstractAchiever):
         if key == "angle":
             upper = upper % 360
             lower = lower % 360
-        return  upper >= target and target >= lower
+        return upper >= target and target >= lower
 
     def __get_r_h_angle(self, robot_state, human_state):
         r_h_rel_pos = [

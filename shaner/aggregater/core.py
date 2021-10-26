@@ -1,6 +1,5 @@
 import numpy as np
-from gym.spaces import Box, Dict
-from shaner.utils import get_box, n_ary2decimal
+from shaner.utils import get_box
 from shaner.aggregater.entity.splitter import Splitter, NSplitter
 
 
@@ -16,6 +15,22 @@ class AbstractAggregater:
 
 
 class Discretizer(AbstractAggregater):
+    def __init__(self, splitter):
+        self.splitter = splitter
+    
+    def __call__(self, obs):
+        return self.splitter.eval(obs)
+    
+    def reset(self):
+        pass
+
+    def get_n_states(self):
+        # TODO ここは要修正。
+        return self.splitter.k
+
+
+# Splitterの作成はApp側に変更
+class OldDiscretizer(AbstractAggregater):
     def __init__(self, env, n, clip_range=None):
         self.env = env
         self.n = n

@@ -4,18 +4,18 @@ from shaner.utils import decimal_calc
 
 
 class SarsaRS:
-    def __init__(self, gamma, lr, env, params, is_success=None):
+    def __init__(self, gamma, lr, env, aggr_id, abstractor, vid,
+                 is_success, values=None):
         self.gamma = gamma
         self.lr = lr
-        self.aggregater = AggregaterFactory().create(params['aggr_id'],
-                                                     params['params'])
-        self.vfunc = ValueFactory().create(params['vid'],
-                                           n_states=self.aggregater.n_states,
-                                           env=env,
-                                           values=params.get('values'))
-        # TODO factory method pattern
+        self.aggregater = AggregaterFactory.create(aggr_id,
+                                                   abstractor)
+        self.vfunc = ValueFactory.create(vid,
+                                         n_states=self.aggregater.n_states,
+                                         env=env,
+                                         values=values)
         self.high_reward = HighReward(gamma=gamma)
-        self.t = 0  # timesteps during abstract states.
+        self.t = -1  # timesteps during abstract states.
         self.pz = None  # previous abstract state.
         # for analysis varibles
         self.counter_transit = 0
@@ -27,22 +27,28 @@ class SarsaRS:
 
     def __train(self, z, reward, done, info):
         self.t += 1
-        if self.pz != z or self.is_success(done, info):
-            assert self.t > 0
-            if self.is_success(done, info):
-                # 成功したときだけこの式。失敗した場合は更新を行わない。
-                target = self.high_reward() + self.gamma ** self.t * reward
+        # 成功軌跡でゴール報酬が0の場合、ターゲットとすると不都合
+        # ゴール: 0、ステップ: -1の場合抽象状態空間のゴールを含む状態の価値関数が小さくなる。
+        is_end_update = self.is_success(done, info)
+        self.high_reward.update(reward, self.t)
+
+        if self.pz != z or is_end_update:
+            assert self.t >= 0
+
+            # 成功した時はrewardをValueとする。
+            if is_end_update:
+                target = self.high_reward()
             else:
-                target = self.high_reward() + self.gamma ** self.t * self.vfunc(z)
+                target = self.high_reward() + \
+                    self.gamma ** (self.t + 1) * self.vfunc(z)
+
             td_error = target - self.vfunc(self.pz)
             self.vfunc.update(self.pz,
                               self.vfunc(self.pz) + self.lr * td_error)
-            self.t = 0
+            self.t = -1
             self.high_reward.reset()
-        self.high_reward.update(reward, self.t)
 
-    def perform(self, pre_obs, obs, reward, done, info=None):
-        # import pdb; pdb.set_trace()
+    def perform(self, pre_obs, obs, reward, done, info):
         if self.pz is None:
             self.pz = self.aggregater(pre_obs)
         z = self.aggregater(obs)
@@ -53,9 +59,8 @@ class SarsaRS:
             self.potential(self.pz),
             "-"
         )
+        # trainの前に価値関数を計算しておく。
         self.__train(z, reward, done, info)
-        # trainでself.pzの価値関数が更新されたときの挙動は？
-        # Dynamic PBRSに従えば、更新前の値を使うべき
         self.pz = z
         if done:
             self.reset()
