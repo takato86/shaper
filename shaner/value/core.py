@@ -20,3 +20,6 @@ class TableValue:
 
     def update(self, state, v):
         self.value[state] = v
+
+    def get_min_value(self):
+        return min(self.value.values())

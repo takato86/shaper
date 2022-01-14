@@ -77,3 +77,19 @@ class SarsaRS:
 
     def get_counter_transit(self):
         return self.counter_transit
+
+    def get_current_state(self):
+        return self.aggregater.get_current_state()
+
+
+class OffsetSarsaRS(SarsaRS):
+    def __init__(self, gamma, lr, env, aggr_id, abstractor, vid,
+                 is_success, values=None):
+        super().__init__(gamma, lr, env, aggr_id, abstractor, vid,
+                         is_success, values)
+
+    def potential(self, z):
+        """必ず正のポテンシャルが生成されるようにオフセット."""
+        potential = super().potential(z)
+        min_potential = self.vfunc.get_min_value()
+        return potential - min_potential

@@ -39,7 +39,9 @@ class DTA(AbstractAggregater):
         if self.achiever.eval(obs, self.current_state):
             self.current_state += 1
             logger.debug(
-                "Subgoal is achieved! Transit to {} at {}".format(self.current_state, os.getpid())
+                "Subgoal is achieved! Transit to {} at {}".format(
+                    self.current_state, os.getpid()
+                )
             )
             return self.current_state
         else:
@@ -50,6 +52,9 @@ class DTA(AbstractAggregater):
 
     def get_n_states(self):
         return self.n_states
+
+    def get_current_state(self):
+        return self.current_state
 
 
 class Checker(AbstractAggregater):

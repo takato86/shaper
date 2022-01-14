@@ -145,7 +145,7 @@ class CrowdSimAchiever(AbstractAchiever):
                 "dist": 4  # 人のpositionを原点とした相対座標, CrowdSimから参照
             }
         ]
-    
+
     def __calc_angle(self, vec1, vec2):
         """Return degree of angle between vec1 and vec2
 

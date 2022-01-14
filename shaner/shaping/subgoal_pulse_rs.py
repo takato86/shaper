@@ -11,10 +11,10 @@ from shaner.utils import decimal_calc
 
 # TODO value_funcを渡せるかどうか？
 class SubgoalPulseRS:
-    def __init__(self, gamma, value_func, achiever):
+    def __init__(self, gamma, achiever):
         self.gamma = gamma
         # 状態価値を出力する関数
-        self.value_func = value_func
+        self.obs_value = 0
         self.checker = Checker(achiever)
         self.reset()
 
@@ -24,6 +24,9 @@ class SubgoalPulseRS:
 
     def start(self, obs):
         pass
+
+    def set_value(self, value):
+        self.obs_value = value
 
     def perform(self, pre_obs, obs, reward, done, info=None):
         c_potential = self.potential(obs)
@@ -41,6 +44,6 @@ class SubgoalPulseRS:
 
     def potential(self, obs):
         if self.checker(obs):
-            return self.value_func(obs)
+            return self.obs_value
         else:
             return 0
