@@ -1,10 +1,12 @@
 from shaner.factory import ValueFactory, AggregaterFactory
 from shaner.reward import HighReward
 from shaner.utils import decimal_calc
+from shaner.shaping.interface import AbstractShaping
+import warnings
 
 
-class SarsaRS:
-    def __init__(self, gamma, lr, env, aggr_id, abstractor, vid,
+class SarsaRS(AbstractShaping):
+    def __init__(self, gamma, lr, aggr_id, abstractor, vid,
                  is_success, values=None):
         self.gamma = gamma
         self.lr = lr
@@ -12,7 +14,6 @@ class SarsaRS:
                                                    abstractor)
         self.vfunc = ValueFactory.create(vid,
                                          n_states=self.aggregater.n_states,
-                                         env=env,
                                          values=values)
         self.high_reward = HighReward(gamma=gamma)
         self.t = -1  # timesteps during abstract states.
@@ -48,7 +49,26 @@ class SarsaRS:
             self.t = -1
             self.high_reward.reset()
 
-    def perform(self, pre_obs, obs, reward, done, info):
+    def perform(self, pre_obs, reward, obs, done, info):
+        warnings.warn("deprecated", DeprecationWarning)
+        if self.pz is None:
+            self.pz = self.aggregater(pre_obs)
+        z = self.aggregater(obs)
+        if self.pz != z:
+            self.counter_transit += 1
+        v = decimal_calc(
+            self.gamma * self.potential(z),
+            self.potential(self.pz),
+            "-"
+        )
+        # trainの前に価値関数を計算しておく。
+        self.__train(z, reward, done, info)
+        self.pz = z
+        if done:
+            self.reset()
+        return v
+
+    def shape(self, pre_obs, pre_action, reward, obs, done, info):
         if self.pz is None:
             self.pz = self.aggregater(pre_obs)
         z = self.aggregater(obs)

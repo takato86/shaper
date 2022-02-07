@@ -1,8 +1,7 @@
 
 
 class TableValue:
-    def __init__(self, env, n_states, values=None):
-        self.env = env
+    def __init__(self, n_states, values=None):
         self.n_states = n_states
         self.value = self.__init_value(values=values)
 
