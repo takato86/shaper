@@ -50,6 +50,18 @@ class SarsaRS(AbstractShaping):
             self.high_reward.reset()
 
     def perform(self, pre_obs, reward, obs, done, info):
+        """[DEPRECATED] return the shaping reward and train the potentials
+
+        Args:
+            pre_obs (_type_): _description_
+            reward (_type_): _description_
+            obs (_type_): _description_
+            done (function): _description_
+            info (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         warnings.warn("deprecated", DeprecationWarning)
         if self.pz is None:
             self.pz = self.aggregater(pre_obs)
@@ -68,23 +80,40 @@ class SarsaRS(AbstractShaping):
             self.reset()
         return v
 
-    def shape(self, pre_obs, pre_action, reward, obs, done, info):
+    def step(self, pre_obs, pre_action, reward, obs, done, info):
+        """return the shaping reward and train the potentials
+
+        Args:
+            pre_obs (_type_): _description_
+            pre_action (_type_): _description_
+            reward (_type_): _description_
+            obs (_type_): _description_
+            done (function): _description_
+            info (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         if self.pz is None:
             self.pz = self.aggregater(pre_obs)
         z = self.aggregater(obs)
         if self.pz != z:
             self.counter_transit += 1
-        v = decimal_calc(
-            self.gamma * self.potential(z),
-            self.potential(self.pz),
-            "-"
-        )
+        v = self.shape(self.pz, z)
         # trainの前に価値関数を計算しておく。
         self.__train(z, reward, done, info)
         self.pz = z
         if done:
             self.reset()
         return v
+
+    def shape(self, pz, z):
+        r = decimal_calc(
+            self.gamma * self.potential(z),
+            self.potential(pz),
+            "-"
+        )
+        return r
 
     def potential(self, z):
         return self.vfunc(z)
