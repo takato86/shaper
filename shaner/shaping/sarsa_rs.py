@@ -21,6 +21,8 @@ class SarsaRS(AbstractShaping):
         # for analysis varibles
         self.counter_transit = 0
         self.is_success = is_success
+        # Pick and Place domainのように成功しても続く環境などのために必要。
+        self.is_pre_success = False
 
     def start(self, obs):
         self.counter_transit = 0
@@ -33,7 +35,7 @@ class SarsaRS(AbstractShaping):
         is_end_update = self.is_success(done, info)
         self.high_reward.update(reward, self.t)
 
-        if self.pz != z or is_end_update:
+        if self.pz != z or (is_end_update and not self.is_pre_success):
             assert self.t >= 0
 
             # 成功した時はrewardをValueとする。
@@ -48,6 +50,7 @@ class SarsaRS(AbstractShaping):
                               self.vfunc(self.pz) + self.lr * td_error)
             self.t = -1
             self.high_reward.reset()
+            self.is_pre_success = is_end_update
 
     def perform(self, pre_obs, reward, obs, done, info):
         """[DEPRECATED] return the shaping reward and train the potentials
