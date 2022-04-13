@@ -15,6 +15,15 @@ class TableValue:
                 for i in range(self.n_states)
             }
         else:
+            if len(values) != self.n_states:
+                raise Exception(
+                    "Not match the size of values: {} with the number of states: {}".format(
+                        len(values), self.n_states
+                    )
+                )
+            values = {
+                int(key): value for key, value in values.items()
+            }
             return values
 
     def update(self, state, v):
