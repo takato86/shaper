@@ -8,7 +8,9 @@ logger = logging.getLogger(__name__)
 
 
 class SubgoalRS(AbstractShaping):
-    def __init__(self, gamma, lr, eta, rho, aggr_id, abstractor):
+    is_learn = False
+
+    def __init__(self, gamma, lr, eta, rho, aggr_id, abstractor, is_success):
         self.gamma = gamma
         self.lr = lr
         self.eta = eta
@@ -96,8 +98,10 @@ class SubgoalRS(AbstractShaping):
 
 
 class NaiveSRS(SubgoalRS):
-    def __init__(self, gamma, lr, eta, rho, aggr_id, abstractor):
-        super().__init__(gamma, lr, eta, rho, aggr_id, abstractor)
+    is_learn = False
+
+    def __init__(self, gamma, lr, eta, rho, aggr_id, abstractor, is_success):
+        super().__init__(gamma, lr, eta, rho, aggr_id, abstractor, is_success)
 
     def potential(self, z):
         if self.t == 0:

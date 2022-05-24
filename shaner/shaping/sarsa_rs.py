@@ -6,6 +6,8 @@ import warnings
 
 
 class SarsaRS(AbstractShaping):
+    is_learn = True
+
     def __init__(self, gamma, lr, aggr_id, abstractor, vid,
                  is_success, values=None):
         self.gamma = gamma

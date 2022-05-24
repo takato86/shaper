@@ -2,6 +2,7 @@ from gym.spaces import Box, Dict
 from decimal import Decimal
 import numpy as np
 
+
 def get_box(space):
     # 2021/1 robotic arm環境にしか対応できていない
     """
