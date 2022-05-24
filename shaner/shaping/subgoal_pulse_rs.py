@@ -14,7 +14,7 @@ from shaner.utils import decimal_calc
 class SubgoalPulseRS(AbstractShaping):
     is_learn = True
 
-    def __init__(self, gamma, achiever):
+    def __init__(self, gamma, achiever, is_success):
         self.gamma = gamma
         # 状態価値を出力する関数
         self.obs_value = 0
