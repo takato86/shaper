@@ -107,3 +107,16 @@ class NaiveSRS(SubgoalRS):
             return self.eta
         else:
             return 0
+
+
+class LinearNaiveSRS(SubgoalRS):
+    is_learn = False
+
+    def __init__(self, gamma, eta, rho, aggr_id, abstractor, is_success):
+        super().__init__(gamma, eta, rho, aggr_id, abstractor, is_success)
+
+    def potential(self, z):
+        if self.t == 0:
+            return self.eta*z
+        else:
+            return 0
