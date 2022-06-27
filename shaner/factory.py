@@ -15,8 +15,8 @@ id2value = {
 
 class ValueFactory:
     @staticmethod
-    def create(vid, env, n_states, values=None):
-        return id2value[vid](env, n_states, values)
+    def create(vid, n_states, values=None):
+        return id2value[vid](n_states, values)
 
 
 class AggregaterFactory:

@@ -1,8 +1,7 @@
 
 
 class TableValue:
-    def __init__(self, env, n_states, values=None):
-        self.env = env
+    def __init__(self, n_states, values=None):
         self.n_states = n_states
         self.value = self.__init_value(values=values)
 
@@ -16,7 +15,19 @@ class TableValue:
                 for i in range(self.n_states)
             }
         else:
+            if len(values) != self.n_states:
+                raise Exception(
+                    "Not match the size of values: {} with the number of states: {}".format(
+                        len(values), self.n_states
+                    )
+                )
+            values = {
+                int(key): value for key, value in values.items()
+            }
             return values
 
     def update(self, state, v):
         self.value[state] = v
+
+    def get_min_value(self):
+        return min(self.value.values())
