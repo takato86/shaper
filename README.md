@@ -1,9 +1,9 @@
-# shaner
+# shaper
 A library for shaping the reward in RL.
 
 ## Installatin
 ```
-pip install shaner
+pip install shaper
 ```
 
 ## Implemantation List

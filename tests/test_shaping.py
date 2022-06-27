@@ -1,29 +1,32 @@
 import unittest
-import shaner
+from examples.achievers.achiever import FourroomsAchiever, FetchPickAndPlaceAchiever
+import shaper
 import gym
 import gym_pinball
 import gym_fourrooms
 import numpy as np
+from shaper.aggregater.discretizer import Discretizer
+
+from shaper.aggregater.subgoal_based import DynamicTrajectoryAggregation
+from shaper.splitter import Splitter
+from shaper.value import TableValue
+
+
+gym_pinball
+gym_fourrooms
 
 
 class SarsaRSTest(unittest.TestCase):
     def setUp(self):
         self.env = gym.make("PinBall-v0")
-        config = {
-            'lr': 0.001,
-            'gamma': 0.99,
-            'env': self.env,
-            'params': {
-                'vid': 'table',
-                'aggr_id': 'disc',
-                'params':{
-                    'env': self.env,
-                    'clip_range': 1,
-                    'n': 2
-                }
-            }
-        }
-        self.rs = shaner.SarsaRS(**config)
+        splitter = Splitter(
+            self.env.observation_space.low, self.env.observation_space.high, 2
+        )
+        aggregater = Discretizer(
+            splitter
+        )
+        vfunc = TableValue(aggregater.get_n_states())
+        self.rs = shaper.SarsaRS(lr=0.001, gamma=0.99, aggregater=aggregater, vfunc=vfunc, is_success=lambda x, y: x)
 
     def test_init_potential(self):
         # obs = [0, 0, 0, 0]
@@ -33,19 +36,20 @@ class SarsaRSTest(unittest.TestCase):
     def test_init_value(self):
         pre_obs = [0, 0.5, 0, 0]
         obs = [0, 0, 0, 0]
-        done = False
-        v = self.rs.perform(pre_obs, obs, 0, done)
+        action = [0, 0]
+        done, reward, info = False, 0, {}
+        v = self.rs.step(pre_obs, action, reward, obs, done, info)
         self.assertEqual(0, v)
 
     def test_perform(self):
         pre_obs = [0, 0.7, 0, 0]
-        obs = [0, -0.7, 0, 0]
+        obs = [0, 0, -0.7, 0]
         reward = 1
         done = False
+        action, info = [0, 0], {}
         self.assertEqual(0, self.rs.vfunc(0))
         self.assertEqual(0, self.rs.vfunc(0))
-        v = self.rs.perform(pre_obs, obs, reward, done)
-        print(self.rs.pz, self.rs.aggregater(obs))
+        v = self.rs.step(pre_obs, action, reward, obs, done, info)
         self.assertEqual(0.001, self.rs.vfunc(self.rs.aggregater(pre_obs)))
         self.assertEqual(0, self.rs.vfunc(self.rs.aggregater(obs)))
         # pre_potentialは前試行の結果を使うので、0
@@ -56,49 +60,40 @@ class DTATest(unittest.TestCase):
     def setUp(self):
         env_id = "FetchPickAndPlace-v1"
         self.env = gym.make(env_id)
-        self.config = {
-            'lr': 0.001,
-            'gamma': 0.99,
-            'env': self.env,
-            'params': {
-                'vid': 'table',
-                'aggr_id': 'dta',
-                'params':{
-                    'env_id': env_id,
-                    '_range': 0.01,
-                    'n_obs': 25,
-                }
-            }
-        }
-    
+        subgoal1 = np.full(28, np.nan)
+        subgoal1[6:9] = [0, 0, 0]
+        subgoal2 = np.full(28, np.nan)
+        subgoal2[6:11] = [0, 0, 0, 0.02, 0.02]
+        subgs = [subgoal1, subgoal2]
+        achiever = FetchPickAndPlaceAchiever(0.01, subgs)
+        aggregater = DynamicTrajectoryAggregation(achiever)
+        vfunc = TableValue(3)
+        self.rs = shaper.SarsaRS(gamma=0.99, lr=0.001, aggregater=aggregater, vfunc=vfunc, is_success=lambda x, y: x)
+
     def test_init_potential(self):
-        rs = shaner.SarsaRS(**self.config)
         obs = np.full(25, 0)
-        z = rs.aggregater(obs)
-        self.assertEqual(0, rs.potential(z))
+        z = self.rs.aggregater(obs)
+        self.assertEqual(0, self.rs.potential(z))
 
     def test_init_value(self):
-        rs = shaner.SarsaRS(**self.config)
         pre_obs = np.full(25, 0)
         obs = np.full(25, 0.01)
-        done = False
-        v = rs.perform(pre_obs, obs, 0, done)
+        action, reward, done, info = self.env.action_space.sample(), 0, False, {}
+        v = self.rs.step(pre_obs, action, reward, obs, done, info)
         self.assertEqual(0, v)
 
     def test_perform(self):
-        rs = shaner.SarsaRS(**self.config)
         pre_obs = np.full(25, -1)
         obs = np.full(25, 0)
-        reward = 1
-        done = False
+        action, reward, done, info = self.env.action_space.sample(), 1, False, {}
         pz = 0
         z = 1
-        self.assertEqual(0, rs.vfunc(pz))
-        self.assertEqual(0, rs.vfunc(z))
+        self.assertEqual(0, self.rs.vfunc(pz))
+        self.assertEqual(0, self.rs.vfunc(z))
         # 抽象状態が切り替わる想定
-        v = rs.perform(pre_obs, obs, reward, done)
-        self.assertEqual(0.001, rs.vfunc(0))
-        self.assertEqual(0, rs.vfunc(z))
+        v = self.rs.step(pre_obs, action, reward, obs, done, info)
+        self.assertEqual(0.001, self.rs.vfunc(0))
+        self.assertEqual(0, self.rs.vfunc(z))
         self.assertEqual(0, v)
 
 
@@ -106,36 +101,17 @@ class TestSubgoalRS(unittest.TestCase):
     def setUp(self):
         env_id = "ConstFourrooms-v0"
         self.env = gym.make(env_id)
-        self.config = {
-            'lr': 0.001,
-            'gamma': 0.99,
-            'env': self.env,
-            'params': {
-                'eta': 1,
-                'rho': 0.1,
-                'vid': 'table',
-                'aggr_id': 'dta',
-                'params':{
-                    'env_id': env_id,
-                    '_range': 0,
-                    'n_obs': 103,
-                    'subgoals': [[1], [3]]
-                    # 'subgoal_path': "tests/in/fourrooms_subgoals.csv"
-                }
-            }
-        }
+        achiever = FourroomsAchiever([[1], [3]])
+        aggregater = DynamicTrajectoryAggregation(achiever)
+        self.rs = shaper.SubgoalRS(gamma=0.99, eta=1, rho=0.1, aggregater=aggregater)
 
     def test_perform(self):
-        rs = shaner.SubgoalRS(**self.config)
-        pre_obs = 0
-        obs = 1
-        reward = 0
-        done = False
-        v = rs.perform(pre_obs, obs, reward, done)
+        pre_obs, obs, action, reward, done, info = 0, 1, 0, 0, False, {}
+        v = self.rs.step(pre_obs, action, reward, obs, done, info)
         self.assertEqual(0.99, v)
         pre_obs = obs
         obs = 2
-        v = rs.perform(pre_obs, obs, reward, done)
+        v = self.rs.step(pre_obs, action, reward, obs, done, info)
         # c_potential = 1 - 0.1
         # gamma * c_potential - p_potential = 0.99 * 0.9 - 1 = -0.109
         self.assertEqual(-0.109, v)

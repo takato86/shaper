@@ -1,6 +1,6 @@
 import logging
 import numpy as np
-from shaner.utils import n_ary2decimal
+from shaper.utils import n_ary2decimal
 
 logger = logging.getLogger(__name__)
 
@@ -9,6 +9,11 @@ class Splitter:
     def __init__(self, low, high, k):
         self.k = k
         self._ranges = self.__make(low, high)
+        self.__n_states = k**len(low)
+
+    @property
+    def n_states(self) -> int:
+        return self.__n_states
 
     def __make(self, low, high):
         quantile = (high - low) / self.k
@@ -26,9 +31,12 @@ class Splitter:
 
     def eval(self, obs):
         logger.debug(obs)
+
         if type(obs) != np.ndarray:
             obs = np.array(obs)
+
         res = np.full(obs.shape, -1)
+
         for j, _range in enumerate(zip(self._ranges["lower"],
                                        self._ranges["higher"])):
             lower, higher = _range
@@ -37,6 +45,7 @@ class Splitter:
             target_bool = lower_bool & higher_bool
             idxs = np.argwhere(target_bool)
             res[idxs] = j
+
         assert len(np.where(res < 0)[0]) == 0
         return n_ary2decimal(res, self.k)
 

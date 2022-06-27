@@ -2,34 +2,36 @@ import logging
 import numpy as np
 import pandas as pd
 import math
-from shaner.utils import l2_norm_dist
-from shaner.aggregater.entity.achiever import AbstractAchiever
+from shaper.utils import l2_norm_dist
+from shaper.achiever import BaseAchiever
 
 
 logger = logging.getLogger(__name__)
 
 
-class FourroomsAchiever(AbstractAchiever):
-    def __init__(self, _range, n_obs, subgoals, **params):
-        super().__init__(_range, n_obs)
-        self.subgoals = subgoals[0]  # TODO # 2d-ndarray shape(#obs, #subgoals)
+class FourroomsAchiever(BaseAchiever):
+    def __init__(self, subgoals):
+        self.__subgoals = subgoals[0]  # TODO # 2d-ndarray shape(#obs, #subgoals)
 
     def eval(self, obs, current_state):
-        if len(self.subgoals) <= current_state:
+        if len(self.__subgoals) <= current_state:
             return False
-        subgoal = self.subgoals[current_state]
+        subgoal = self.__subgoals[current_state]
         return obs == subgoal
 
+    @property
+    def subgoals(self):
+        return self.__subgoals
 
-class PinballAchiever(AbstractAchiever):
-    def __init__(self, _range, n_obs, subgoals, **params):
-        super().__init__(_range, n_obs)
-        self.subgoals = subgoals  # 2d-ndarray shape(#obs, #subgoals)
+
+class PinballAchiever(BaseAchiever):
+    def __init__(self, subgoals):
+        self.__subgoals = subgoals  # 2d-ndarray shape(#obs, #subgoals)
 
     def eval(self, obs, current_state):
-        if len(self.subgoals) <= current_state:
+        if len(self.__subgoals) <= current_state:
             return False
-        subgoal = np.array(self.subgoals[current_state])
+        subgoal = np.array(self.__subgoals[current_state])
         idxs = np.argwhere(subgoal == subgoal)  # np.nanでない要素を取り出し
         b_in = l2_norm_dist(
             subgoal[idxs].reshape(-1),
@@ -45,9 +47,13 @@ class PinballAchiever(AbstractAchiever):
         subgoals = df.values
         return subgoals
 
+    @property
+    def subgoals(self):
+        return self.__subgoals
 
-class FetchPickAndPlaceAchiever(AbstractAchiever):
-    def __init__(self, _range, n_obs, subgs, **params):
+
+class FetchPickAndPlaceAchiever(BaseAchiever):
+    def __init__(self, range, subgs):
         """initialize
 
         Args:
@@ -55,16 +61,21 @@ class FetchPickAndPlaceAchiever(AbstractAchiever):
             n_obs (int): the dimension size of observations
             subgs (np.ndarray): subgoal numpy list.
         """
-        super().__init__(_range, n_obs)
+        self._range = range
+
         if subgs is not None:
-            self.subgoals = subgs
+            self.__subgoals = subgs
         else:
-            self.subgoals = self.__generate_subgoals()  # n_obs=25
+            self.__subgoals = self.__generate_subgoals()  # n_obs=25
+
+    @property
+    def subgoals(self):
+        return self.__subgoals
 
     def eval(self, obs, current_state):
-        if len(self.subgoals) <= current_state:
+        if len(self.__subgoals) <= current_state:
             return False
-        subgoal = np.array(self.subgoals[current_state])
+        subgoal = np.array(self.__subgoals[current_state])
         idxs = np.argwhere(subgoal == subgoal)  # np.nanでない要素を取り出し
         b_lower = subgoal[idxs] - self._range <= obs[idxs]
         b_higher = obs[idxs] <= subgoal[idxs] + self._range
@@ -85,10 +96,13 @@ class FetchPickAndPlaceAchiever(AbstractAchiever):
         return [subgoal1, subgoal2]
 
 
-class CrowdSimAchiever(AbstractAchiever):
-    def __init__(self, _range, n_obs, **params):
-        super().__init__(_range, n_obs)  # range: dict{"dict", "angle"}
-        self.subgoals = self.__generate_subgoals()
+class CrowdSimAchiever(BaseAchiever):
+    def __init__(self):
+        self.__subgoals = self.__generate_subgoals()
+
+    @property
+    def subgoals(self):
+        return self.__subgoals
 
     def eval(self, state, current_state):
         """check whether a state is a subgoal 
@@ -102,9 +116,9 @@ class CrowdSimAchiever(AbstractAchiever):
         """
         # state: JointState: self_state, human_states
         # TODO in the environment with more two humans
-        if current_state >= len(self.subgoals):
+        if current_state >= len(self.__subgoals):
             return False
-        subgoal = self.subgoals[current_state]
+        subgoal = self.__subgoals[current_state]
         robot_state = state.self_state
         human_state = state.human_states[0]
         return self.check_subgoal(subgoal, robot_state, human_state)

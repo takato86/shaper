@@ -1,41 +1,22 @@
 import os
 import logging
 
-from shaner.aggregater.core import AbstractAggregater
-# from shaner.aggregater.entity.achiever import \
-#     FetchPickAndPlaceAchiever, \
-#     PinballAchiever, \
-#     FourroomsAchiever, \
-#     CrowdSimAchiever
+import numpy as np
+from shaper.achiever import BaseAchiever
+
+from shaper.aggregater.interface import AbstractAggregater
 
 
 logger = logging.getLogger(__name__)
 
 
-# 各ドメインで記述
-# id2achiever = {
-#     "SingleFetchPickAndPlace-v0": FetchPickAndPlaceAchiever,
-#     "FetchPickAndPlace-v1": FetchPickAndPlaceAchiever,
-#     "PinBall-v0": PinballAchiever,
-#     "Pinball-Subgoal-v0": PinballAchiever,
-#     "Fourrooms-v0": FourroomsAchiever,
-#     "ConstFourrooms-v0": FourroomsAchiever,
-#     "DiagonalFourrooms-v0": FourroomsAchiever,
-#     "DiagonalPartialFourrooms-v0": FourroomsAchiever,
-#     "CrowdSim-v0": CrowdSimAchiever
-# }
-
-
-# 2021/8/2
-# TODO achieverを渡すように修正したので関連プログラムは要修正
-# ドメインに依るのでachieverの作成はユーザに任せる。
-class DTA(AbstractAggregater):
-    def __init__(self, achiever):
+class DynamicTrajectoryAggregation(AbstractAggregater[int]):
+    def __init__(self, achiever: BaseAchiever):
         self.achiever = achiever
         self.current_state = 0
         self.n_states = len(self.achiever.subgoals) + 1
 
-    def __call__(self, obs):
+    def __call__(self, obs: np.ndarray) -> int:
         if self.achiever.eval(obs, self.current_state):
             self.current_state += 1
             logger.debug(
@@ -47,13 +28,13 @@ class DTA(AbstractAggregater):
         else:
             return self.current_state
 
-    def reset(self):
+    def reset(self) -> None:
         self.current_state = 0
 
-    def get_n_states(self):
+    def get_n_states(self) -> int:
         return self.n_states
 
-    def get_current_state(self):
+    def get_current_state(self) -> int:
         return self.current_state
 
 

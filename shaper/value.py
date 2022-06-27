@@ -1,6 +1,17 @@
+import abc
 
 
-class TableValue:
+class AbstractValue(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def __call__(self, state: any) -> float:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def update(self, state: any, reward: float) -> None:
+        raise NotImplementedError
+
+
+class TableValue(AbstractValue):
     def __init__(self, n_states, values=None):
         self.n_states = n_states
         self.value = self.__init_value(values=values)
