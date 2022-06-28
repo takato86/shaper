@@ -8,7 +8,7 @@ from shaper.value import AbstractValue
 AggregatedState = TypeVar("AggregatedState")
 
 
-class AbstractAggregater(Generic[AggregatedState], metaclass=abc.ABCMeta):
+class AbstractAggregator(Generic[AggregatedState], metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __call__(self, obs: np.ndarray) -> AggregatedState:
         """observation into internal state."""

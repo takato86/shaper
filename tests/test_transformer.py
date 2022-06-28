@@ -1,4 +1,4 @@
-from shaper.aggregater.discretizer import Discretizer
+from shaper.aggregator.discretizer import Discretizer
 from shaper.splitter import Splitter, NSplitter
 from shaper.utils import n_ary2decimal
 import gym
@@ -47,13 +47,13 @@ class TestDiscretizer(unittest.TestCase):
     def setUp(self):
         env = gym.make('PinBall-v0')
         splitter = Splitter(env.observation_space.low, env.observation_space.high, 2)
-        self.aggregater = Discretizer(splitter)
+        self.aggregator = Discretizer(splitter)
 
     def testTwoAggregate(self):
         obs = [0, 0, 0, 0]
-        self.assertEqual(12, self.aggregater(obs))
+        self.assertEqual(12, self.aggregator(obs))
         obs = [0, 0.7, 0, 0]
-        self.assertEqual(14, self.aggregater(obs))
+        self.assertEqual(14, self.aggregator(obs))
 
 
 if __name__ == "__main__":

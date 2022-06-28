@@ -2,7 +2,7 @@ import logging
 from typing import Any, Dict, Optional
 
 import numpy as np
-from shaper.aggregater.interface import AbstractAggregater
+from shaper.aggregator.interface import AbstractAggregator
 from shaper.shaping.interface import AbstractShaping
 from shaper.utils import decimal_calc
 
@@ -16,15 +16,15 @@ class SubgoalRS(AbstractShaping):
     def is_learn(cls) -> bool:
         return False
 
-    def __init__(self, gamma: float, eta: float, rho: float, aggregater: AbstractAggregater):
+    def __init__(self, gamma: float, eta: float, rho: float, aggregator: AbstractAggregator):
         self.gamma = gamma
         self.eta = eta
         self.rho = rho
-        self.aggregater = aggregater
+        self.aggregator = aggregator
         self.t: int = 0
         self.pz: Optional[int] = None
         self.p_potential: float = 0
-        self.aggregater.reset()
+        self.aggregator.reset()
         self.counter_transit: int = 0
 
     @property
@@ -34,8 +34,8 @@ class SubgoalRS(AbstractShaping):
     def step(self, pre_obs: np.ndarray, action: np.ndarray, reward: float,
              obs: np.ndarray, done: bool, info: Dict[str, Any]) -> float:
         if self.pz is None:
-            self.pz = self.aggregater(pre_obs)
-        z = self.aggregater(obs)
+            self.pz = self.aggregator(pre_obs)
+        z = self.aggregator(obs)
         if self.pz == z:
             self.t += 1
         else:
@@ -65,16 +65,16 @@ class SubgoalRS(AbstractShaping):
         self.t: int = 0
         self.pz: Optional[int] = None
         self.p_potential: float = 0
-        self.aggregater.reset()
+        self.aggregator.reset()
 
     def start(self, obs):
         self.counter_transit = 0
-        self.pz = self.aggregater(obs)
+        self.pz = self.aggregator(obs)
 
     def perform(self, pre_obs, obs, reward, done, info=None):
         if self.pz is None:
-            self.pz = self.aggregater(pre_obs)
-        z = self.aggregater(obs)
+            self.pz = self.aggregator(pre_obs)
+        z = self.aggregator(obs)
         if self.pz == z:
             self.t += 1
         else:
@@ -103,7 +103,7 @@ class SubgoalRS(AbstractShaping):
         return self.counter_transit
 
     def get_current_state(self):
-        return self.aggregater.get_current_state()
+        return self.aggregator.get_current_state()
 
 
 class NaiveSRS(SubgoalRS):

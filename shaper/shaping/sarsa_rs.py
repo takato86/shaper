@@ -1,6 +1,6 @@
 from typing import Any, Callable, Dict
 import numpy as np
-from shaper.aggregater.interface import AbstractAggregater
+from shaper.aggregator.interface import AbstractAggregator
 from shaper.reward import HighReward
 from shaper.utils import decimal_calc
 from shaper.shaping.interface import AbstractShaping
@@ -15,11 +15,11 @@ class SarsaRS(AbstractShaping):
     def is_learn(cls):
         return True
 
-    def __init__(self, gamma: float, lr: float, aggregater: AbstractAggregater, vfunc: AbstractValue,
+    def __init__(self, gamma: float, lr: float, aggregator: AbstractAggregator, vfunc: AbstractValue,
                  is_success: Callable[[bool, dict[str, Any]], bool]):
         self.gamma = gamma
         self.lr = lr
-        self.aggregater = aggregater
+        self.aggregator = aggregator
         self.vfunc = vfunc
         self.high_reward = HighReward(gamma=gamma)
         self.t = -1  # timesteps during abstract states.
@@ -31,7 +31,7 @@ class SarsaRS(AbstractShaping):
 
     @property
     def current_state(self):
-        return self.aggregater.get_current_state()
+        return self.aggregator.get_current_state()
 
     def shape(self, pz, z) -> float:
         r = decimal_calc(
@@ -57,8 +57,8 @@ class SarsaRS(AbstractShaping):
             _type_: _description_
         """
         if self.pz is None:
-            self.pz = self.aggregater(pre_obs)
-        z = self.aggregater(obs)
+            self.pz = self.aggregator(pre_obs)
+        z = self.aggregator(obs)
         if self.pz != z:
             self.counter_transit += 1
         v = self.shape(self.pz, z)
@@ -91,7 +91,7 @@ class SarsaRS(AbstractShaping):
 
     def start(self, obs):
         self.counter_transit = 0
-        self.pz = self.aggregater(obs)
+        self.pz = self.aggregator(obs)
 
     def perform(self, pre_obs, reward, obs, done, info):
         """[DEPRECATED] return the shaping reward and train the potentials
@@ -108,8 +108,8 @@ class SarsaRS(AbstractShaping):
         """
         warnings.warn("deprecated", DeprecationWarning)
         if self.pz is None:
-            self.pz = self.aggregater(pre_obs)
-        z = self.aggregater(obs)
+            self.pz = self.aggregator(pre_obs)
+        z = self.aggregator(obs)
         if self.pz != z:
             self.counter_transit += 1
         v = decimal_calc(
@@ -131,7 +131,7 @@ class SarsaRS(AbstractShaping):
         self.t = 0
         self.pz = None
         self.high_reward.reset()
-        self.aggregater.reset()
+        self.aggregator.reset()
 
     def get_counter_transit(self):
         return self.counter_transit

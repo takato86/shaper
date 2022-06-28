@@ -1,7 +1,7 @@
 import unittest
 from shaper.splitter import Splitter
 from shaper.value import TableValue
-from shaper.aggregater.discretizer import Discretizer
+from shaper.aggregator.discretizer import Discretizer
 import gym
 import gym_pinball
 
@@ -12,8 +12,8 @@ class TestTableValue(unittest.TestCase):
     def setUp(self):
         self.env = gym.make('PinBall-v0')
         splitter = Splitter(self.env.observation_space.low, self.env.observation_space.high, 2)
-        aggregater = Discretizer(splitter)
-        params = {"n_states": aggregater.get_n_states()}
+        aggregator = Discretizer(splitter)
+        params = {"n_states": aggregator.get_n_states()}
         self.v = TableValue(**params)
 
     def test_update(self):

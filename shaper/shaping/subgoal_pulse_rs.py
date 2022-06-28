@@ -5,7 +5,7 @@ Laud, Adam Daniel. 2004.
 Champaign, IL, USA: University of Illinois at Urbana-Champaign.
 """
 
-from shaper.aggregater.subgoal_based import Checker
+from shaper.aggregator.subgoal_based import Checker
 from shaper.shaping.interface import AbstractShaping
 from shaper.utils import decimal_calc
 

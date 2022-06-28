@@ -5,9 +5,9 @@ import gym
 import gym_pinball
 import gym_fourrooms
 import numpy as np
-from shaper.aggregater.discretizer import Discretizer
+from shaper.aggregator.discretizer import Discretizer
 
-from shaper.aggregater.subgoal_based import DynamicTrajectoryAggregation
+from shaper.aggregator.subgoal_based import DynamicTrajectoryAggregation
 from shaper.splitter import Splitter
 from shaper.value import TableValue
 
@@ -22,11 +22,11 @@ class SarsaRSTest(unittest.TestCase):
         splitter = Splitter(
             self.env.observation_space.low, self.env.observation_space.high, 2
         )
-        aggregater = Discretizer(
+        aggregator = Discretizer(
             splitter
         )
-        vfunc = TableValue(aggregater.get_n_states())
-        self.rs = shaper.SarsaRS(lr=0.001, gamma=0.99, aggregater=aggregater, vfunc=vfunc, is_success=lambda x, y: x)
+        vfunc = TableValue(aggregator.get_n_states())
+        self.rs = shaper.SarsaRS(lr=0.001, gamma=0.99, aggregator=aggregator, vfunc=vfunc, is_success=lambda x, y: x)
 
     def test_init_potential(self):
         # obs = [0, 0, 0, 0]
@@ -50,8 +50,8 @@ class SarsaRSTest(unittest.TestCase):
         self.assertEqual(0, self.rs.vfunc(0))
         self.assertEqual(0, self.rs.vfunc(0))
         v = self.rs.step(pre_obs, action, reward, obs, done, info)
-        self.assertEqual(0.001, self.rs.vfunc(self.rs.aggregater(pre_obs)))
-        self.assertEqual(0, self.rs.vfunc(self.rs.aggregater(obs)))
+        self.assertEqual(0.001, self.rs.vfunc(self.rs.aggregator(pre_obs)))
+        self.assertEqual(0, self.rs.vfunc(self.rs.aggregator(obs)))
         # pre_potentialは前試行の結果を使うので、0
         self.assertEqual(0, v)
 
@@ -66,13 +66,13 @@ class DTATest(unittest.TestCase):
         subgoal2[6:11] = [0, 0, 0, 0.02, 0.02]
         subgs = [subgoal1, subgoal2]
         achiever = FetchPickAndPlaceAchiever(0.01, subgs)
-        aggregater = DynamicTrajectoryAggregation(achiever)
+        aggregator = DynamicTrajectoryAggregation(achiever)
         vfunc = TableValue(3)
-        self.rs = shaper.SarsaRS(gamma=0.99, lr=0.001, aggregater=aggregater, vfunc=vfunc, is_success=lambda x, y: x)
+        self.rs = shaper.SarsaRS(gamma=0.99, lr=0.001, aggregator=aggregator, vfunc=vfunc, is_success=lambda x, y: x)
 
     def test_init_potential(self):
         obs = np.full(25, 0)
-        z = self.rs.aggregater(obs)
+        z = self.rs.aggregator(obs)
         self.assertEqual(0, self.rs.potential(z))
 
     def test_init_value(self):
@@ -102,8 +102,8 @@ class TestSubgoalRS(unittest.TestCase):
         env_id = "ConstFourrooms-v0"
         self.env = gym.make(env_id)
         achiever = FourroomsAchiever([[1], [3]])
-        aggregater = DynamicTrajectoryAggregation(achiever)
-        self.rs = shaper.SubgoalRS(gamma=0.99, eta=1, rho=0.1, aggregater=aggregater)
+        aggregator = DynamicTrajectoryAggregation(achiever)
+        self.rs = shaper.SubgoalRS(gamma=0.99, eta=1, rho=0.1, aggregator=aggregator)
 
     def test_perform(self):
         pre_obs, obs, action, reward, done, info = 0, 1, 0, 0, False, {}

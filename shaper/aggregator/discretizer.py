@@ -1,11 +1,11 @@
 
 from typing import Dict, Optional
-from shaper.aggregater.interface import AbstractAggregater
+from shaper.aggregator.interface import AbstractAggregator
 from shaper.splitter import Splitter
 from shaper.value import AbstractValue, TableValue
 
 
-class Discretizer(AbstractAggregater):
+class Discretizer(AbstractAggregator):
     def __init__(self, splitter: Splitter):
         self.splitter = splitter
 

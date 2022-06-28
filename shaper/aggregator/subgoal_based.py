@@ -5,14 +5,14 @@ from typing import Dict, Optional
 import numpy as np
 from shaper.achiever import AbstractAchiever
 
-from shaper.aggregater.interface import AbstractAggregater
+from shaper.aggregator.interface import AbstractAggregator
 from shaper.value import AbstractValue, TableValue
 
 
 logger = logging.getLogger(__name__)
 
 
-class DynamicTrajectoryAggregation(AbstractAggregater[int]):
+class DynamicTrajectoryAggregation(AbstractAggregator[int]):
     def __init__(self, achiever: AbstractAchiever):
         self.achiever = achiever
         self.current_state = 0
@@ -43,7 +43,7 @@ class DynamicTrajectoryAggregation(AbstractAggregater[int]):
         return TableValue(self.n_states, values)
 
 
-class Checker(AbstractAggregater):
+class Checker(AbstractAggregator):
     def __init__(self, achiever: AbstractAchiever):
         self.achiever = achiever
         self.current_state = 0
