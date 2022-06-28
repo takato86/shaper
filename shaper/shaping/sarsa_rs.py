@@ -1,6 +1,5 @@
-from typing import Callable, Dict
+from typing import Any, Callable, Dict
 import numpy as np
-from shaper.value import TableValue
 from shaper.aggregater.interface import AbstractAggregater
 from shaper.reward import HighReward
 from shaper.utils import decimal_calc
@@ -17,7 +16,7 @@ class SarsaRS(AbstractShaping):
         return True
 
     def __init__(self, gamma: float, lr: float, aggregater: AbstractAggregater, vfunc: AbstractValue,
-                 is_success: Callable[[bool, dict[str, any]], bool]):
+                 is_success: Callable[[bool, dict[str, Any]], bool]):
         self.gamma = gamma
         self.lr = lr
         self.aggregater = aggregater
@@ -43,7 +42,7 @@ class SarsaRS(AbstractShaping):
         return r
 
     def step(self, pre_obs: np.ndarray, action: np.ndarray, reward: float,
-             obs: np.ndarray, done: bool, info: Dict[str, any]) -> float:
+             obs: np.ndarray, done: bool, info: Dict[str, Any]) -> float:
         """return the shaping reward and train the potentials
 
         Args:
@@ -136,14 +135,3 @@ class SarsaRS(AbstractShaping):
 
     def get_counter_transit(self):
         return self.counter_transit
-
-
-class OffsetSarsaRS(SarsaRS):
-    def __init__(self, gamma: float, lr: float, aggregater: AbstractAggregater, vfunc: TableValue, is_success: bool):
-        super().__init__(gamma, lr, aggregater, vfunc, is_success)
-
-    def potential(self, z: any) -> float:
-        """必ず正のポテンシャルが生成されるようにオフセット."""
-        potential = super().potential(z)
-        min_potential = self.vfunc.get_min_value()
-        return potential - min_potential

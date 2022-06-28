@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import numpy as np
 from shaper.aggregater.interface import AbstractAggregater
@@ -21,15 +21,18 @@ class SubgoalRS(AbstractShaping):
         self.eta = eta
         self.rho = rho
         self.aggregater = aggregater
-        self.reset()
-        self.counter_transit = 0
+        self.t: int = 0
+        self.pz: Optional[int] = None
+        self.p_potential: float = 0
+        self.aggregater.reset()
+        self.counter_transit: int = 0
 
     @property
     def current_state(self) -> Optional[np.ndarray]:
         return None
 
     def step(self, pre_obs: np.ndarray, action: np.ndarray, reward: float,
-             obs: np.ndarray, done: bool, info: Dict[str, any]) -> float:
+             obs: np.ndarray, done: bool, info: Dict[str, Any]) -> float:
         if self.pz is None:
             self.pz = self.aggregater(pre_obs)
         z = self.aggregater(obs)
@@ -59,9 +62,9 @@ class SubgoalRS(AbstractShaping):
         return r
 
     def reset(self):
-        self.t = 0
-        self.pz = None
-        self.p_potential = 0
+        self.t: int = 0
+        self.pz: Optional[int] = None
+        self.p_potential: float = 0
         self.aggregater.reset()
 
     def start(self, obs):

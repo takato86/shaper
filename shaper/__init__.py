@@ -1,4 +1,4 @@
-from shaper.shaping.sarsa_rs import SarsaRS, OffsetSarsaRS
+from shaper.shaping.sarsa_rs import SarsaRS
 from shaper.shaping.subgoal_rs import SubgoalRS, NaiveSRS, LinearNaiveSRS
 from shaper.shaping.subgoal_pulse_rs import SubgoalPulseRS
 
@@ -10,6 +10,6 @@ __author__ = 'takato86'
 __author_email__ = 'okudo@nii.ac.jp'
 __url__ = 'https://github.com/takato86/shaper'
 __all__ = [
-    "SarsaRS", "OffsetSarsaRS", "SubgoalRS", "NaiveSRS",
+    "SarsaRS", "SubgoalRS", "NaiveSRS",
     "SubgoalPulseRS", "LinearNaiveSRS"
 ]

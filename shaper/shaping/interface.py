@@ -1,6 +1,6 @@
 import abc
 import numpy as np
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 
 class AbstractShaping(metaclass=abc.ABCMeta):
@@ -24,6 +24,6 @@ class AbstractShaping(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def step(self, pre_obs: np.ndarray, action: np.ndarray, reward: float,
-             obs: np.ndarray, done: bool, info: Dict[str, any]) -> float:
+             obs: np.ndarray, done: bool, info: Dict[str, Any]) -> float:
         """Return a shaping reward with internal updates."""
         raise NotImplementedError

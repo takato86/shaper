@@ -1,17 +1,19 @@
 import os
 import logging
+from typing import Dict, Optional
 
 import numpy as np
-from shaper.achiever import BaseAchiever
+from shaper.achiever import AbstractAchiever
 
 from shaper.aggregater.interface import AbstractAggregater
+from shaper.value import AbstractValue, TableValue
 
 
 logger = logging.getLogger(__name__)
 
 
 class DynamicTrajectoryAggregation(AbstractAggregater[int]):
-    def __init__(self, achiever: BaseAchiever):
+    def __init__(self, achiever: AbstractAchiever):
         self.achiever = achiever
         self.current_state = 0
         self.n_states = len(self.achiever.subgoals) + 1
@@ -37,12 +39,13 @@ class DynamicTrajectoryAggregation(AbstractAggregater[int]):
     def get_current_state(self) -> int:
         return self.current_state
 
+    def create_vfunc(self, values: Optional[Dict[int, float]] = None) -> AbstractValue:
+        return TableValue(self.n_states, values)
+
 
 class Checker(AbstractAggregater):
-    def __init__(self, achiever):
+    def __init__(self, achiever: AbstractAchiever):
         self.achiever = achiever
-        # id2achiever[env_id](n_obs=n_obs, _range=_range,
-        #                                     **params)
         self.current_state = 0
         self.n_states = len(self.achiever.subgoals) + 1
 
@@ -61,3 +64,6 @@ class Checker(AbstractAggregater):
 
     def get_n_states(self):
         return self.n_states
+
+    def create_vfunc(self, values: Optional[Dict[int, float]] = None) -> AbstractValue:
+        return TableValue(self.n_states, values)

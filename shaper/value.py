@@ -1,25 +1,26 @@
 import abc
+from typing import Any, Dict, Optional
 
 
 class AbstractValue(metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def __call__(self, state: any) -> float:
+    def __call__(self, state: Any) -> float:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def update(self, state: any, reward: float) -> None:
+    def update(self, state: Any, reward: float) -> None:
         raise NotImplementedError
 
 
 class TableValue(AbstractValue):
-    def __init__(self, n_states, values=None):
+    def __init__(self, n_states: int, values: Optional[Dict[int, float]] = None):
         self.n_states = n_states
         self.value = self.__init_value(values=values)
 
-    def __call__(self, state):
+    def __call__(self, state: Any):
         return self.value[state]
 
-    def __init_value(self, values):
+    def __init_value(self, values: Optional[Dict[int, float]]) -> Dict[int, float]:
         if values is None:
             return {
                 i: 0
@@ -37,8 +38,8 @@ class TableValue(AbstractValue):
             }
             return values
 
-    def update(self, state, v):
+    def update(self, state: Any, v: float) -> None:
         self.value[state] = v
 
-    def get_min_value(self):
+    def get_min_value(self) -> float:
         return min(self.value.values())

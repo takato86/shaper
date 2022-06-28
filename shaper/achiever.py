@@ -1,5 +1,5 @@
 import abc
-from typing import List
+from typing import Any, List
 
 import numpy as np
 
@@ -11,5 +11,5 @@ class AbstractAchiever(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def subgoals(self) -> List[any]:
+    def subgoals(self) -> List[Any]:
         raise NotImplementedError

@@ -1,6 +1,8 @@
 
+from typing import Dict, Optional
 from shaper.aggregater.interface import AbstractAggregater
 from shaper.splitter import Splitter
+from shaper.value import AbstractValue, TableValue
 
 
 class Discretizer(AbstractAggregater):
@@ -15,3 +17,6 @@ class Discretizer(AbstractAggregater):
 
     def get_n_states(self):
         return self.splitter.n_states
+
+    def create_vfunc(self, values: Optional[Dict[int, float]] = None) -> AbstractValue:
+        return TableValue(self.splitter.n_states, values)
