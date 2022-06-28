@@ -101,7 +101,7 @@ class TestSubgoalRS(unittest.TestCase):
     def setUp(self):
         env_id = "ConstFourrooms-v0"
         self.env = gym.make(env_id)
-        achiever = FourroomsAchiever([[1], [3]])
+        achiever = FourroomsAchiever([1, 3])
         aggregator = DynamicTrajectoryAggregation(achiever)
         self.rs = shaper.SubgoalRS(gamma=0.99, eta=1, rho=0.1, aggregator=aggregator)
 

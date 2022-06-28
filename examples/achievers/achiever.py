@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class FourroomsAchiever(AbstractAchiever):
     def __init__(self, subgoals):
-        self.__subgoals = subgoals[0]  # TODO # 2d-ndarray shape(#obs, #subgoals)
+        self.__subgoals = subgoals  # 2d-ndarray shape(#obs, #subgoals)
 
     def eval(self, obs, current_state):
         if len(self.__subgoals) <= current_state:
@@ -25,7 +25,8 @@ class FourroomsAchiever(AbstractAchiever):
 
 
 class PinballAchiever(AbstractAchiever):
-    def __init__(self, subgoals):
+    def __init__(self, range, subgoals):
+        self._range = range
         self.__subgoals = subgoals  # 2d-ndarray shape(#obs, #subgoals)
 
     def eval(self, obs, current_state):
@@ -97,7 +98,8 @@ class FetchPickAndPlaceAchiever(AbstractAchiever):
 
 
 class CrowdSimAchiever(AbstractAchiever):
-    def __init__(self):
+    def __init__(self, range):
+        self._range = range
         self.__subgoals = self.__generate_subgoals()
 
     @property

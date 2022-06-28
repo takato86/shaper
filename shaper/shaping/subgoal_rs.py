@@ -35,12 +35,15 @@ class SubgoalRS(AbstractShaping):
              obs: np.ndarray, done: bool, info: Dict[str, Any]) -> float:
         if self.pz is None:
             self.pz = self.aggregator(pre_obs)
+
         z = self.aggregator(obs)
+
         if self.pz == z:
             self.t += 1
         else:
             self.counter_transit += 1
             self.t = 0
+
         c_potential = self.potential(z)
         v = decimal_calc(
             self.gamma * c_potential,
@@ -49,8 +52,10 @@ class SubgoalRS(AbstractShaping):
         )
         self.pz = z
         self.p_potential = c_potential
+
         if done:
             self.reset()
+
         return v
 
     def shape(self, pz: np.ndarray, z: np.ndarray) -> float:
