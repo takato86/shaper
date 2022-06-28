@@ -3,13 +3,13 @@ import numpy as np
 import pandas as pd
 import math
 from shaper.utils import l2_norm_dist
-from shaper.achiever import BaseAchiever
+from shaper.achiever import AbstractAchiever
 
 
 logger = logging.getLogger(__name__)
 
 
-class FourroomsAchiever(BaseAchiever):
+class FourroomsAchiever(AbstractAchiever):
     def __init__(self, subgoals):
         self.__subgoals = subgoals[0]  # TODO # 2d-ndarray shape(#obs, #subgoals)
 
@@ -24,7 +24,7 @@ class FourroomsAchiever(BaseAchiever):
         return self.__subgoals
 
 
-class PinballAchiever(BaseAchiever):
+class PinballAchiever(AbstractAchiever):
     def __init__(self, subgoals):
         self.__subgoals = subgoals  # 2d-ndarray shape(#obs, #subgoals)
 
@@ -52,7 +52,7 @@ class PinballAchiever(BaseAchiever):
         return self.__subgoals
 
 
-class FetchPickAndPlaceAchiever(BaseAchiever):
+class FetchPickAndPlaceAchiever(AbstractAchiever):
     def __init__(self, range, subgs):
         """initialize
 
@@ -96,7 +96,7 @@ class FetchPickAndPlaceAchiever(BaseAchiever):
         return [subgoal1, subgoal2]
 
 
-class CrowdSimAchiever(BaseAchiever):
+class CrowdSimAchiever(AbstractAchiever):
     def __init__(self):
         self.__subgoals = self.__generate_subgoals()
 
