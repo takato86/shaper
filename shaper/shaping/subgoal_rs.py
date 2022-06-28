@@ -112,8 +112,8 @@ class NaiveSRS(SubgoalRS):
     def is_learn(cls):
         return False
 
-    def __init__(self, gamma, eta, abstractor):
-        super().__init__(gamma, eta, abstractor)
+    def __init__(self, gamma, eta, aggregator):
+        super().__init__(gamma, eta, aggregator)
 
     def potential(self, z):
         if self.t == 0:
@@ -128,8 +128,8 @@ class LinearNaiveSRS(SubgoalRS):
     def is_learn(cls):
         return False
 
-    def __init__(self, gamma, eta, abstractor):
-        super().__init__(gamma, eta, abstractor)
+    def __init__(self, gamma, eta, aggregator):
+        super().__init__(gamma, eta, aggregator)
 
     def potential(self, z):
         if self.t == 0:
