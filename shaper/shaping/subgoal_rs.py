@@ -16,10 +16,9 @@ class SubgoalRS(AbstractShaping):
     def is_learn(cls) -> bool:
         return False
 
-    def __init__(self, gamma: float, eta: float, rho: float, aggregator: AbstractAggregator):
+    def __init__(self, gamma: float, eta: float, aggregator: AbstractAggregator):
         self.gamma = gamma
         self.eta = eta
-        self.rho = rho
         self.aggregator = aggregator
         self.t: int = 0
         self.pz: Optional[int] = None
@@ -29,7 +28,7 @@ class SubgoalRS(AbstractShaping):
 
     @property
     def current_state(self) -> Optional[np.ndarray]:
-        return None
+        return self.aggregator.get_current_state()
 
     def step(self, pre_obs: np.ndarray, action: np.ndarray, reward: float,
              obs: np.ndarray, done: bool, info: Dict[str, Any]) -> float:
@@ -98,11 +97,7 @@ class SubgoalRS(AbstractShaping):
         return v
 
     def potential(self, z):
-        return max(decimal_calc(
-            self.eta * z,
-            self.rho * self.t,
-            "-"
-        ), 0.0)
+        return self.eta * z
 
     def get_counter_transit(self):
         return self.counter_transit
@@ -117,8 +112,8 @@ class NaiveSRS(SubgoalRS):
     def is_learn(cls):
         return False
 
-    def __init__(self, gamma, eta, rho, aggr_id, abstractor, is_success):
-        super().__init__(gamma, eta, rho, aggr_id, abstractor, is_success)
+    def __init__(self, gamma, eta, abstractor):
+        super().__init__(gamma, eta, abstractor)
 
     def potential(self, z):
         if self.t == 0:
@@ -133,8 +128,8 @@ class LinearNaiveSRS(SubgoalRS):
     def is_learn(cls):
         return False
 
-    def __init__(self, gamma, eta, rho, aggr_id, abstractor, is_success):
-        super().__init__(gamma, eta, rho, aggr_id, abstractor, is_success)
+    def __init__(self, gamma, eta, abstractor):
+        super().__init__(gamma, eta, abstractor)
 
     def potential(self, z):
         if self.t == 0:
