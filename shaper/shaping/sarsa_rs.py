@@ -73,14 +73,12 @@ class SarsaRS(AbstractShaping):
         is_end_update = self.is_success(done, info)
         self.high_reward.update(reward, self.t)
 
-        if self.pz != z or (is_end_update and not self.is_already_end):
+        if not self.is_already_end and (self.pz != z or is_end_update):
             assert self.t >= 0
+            target = self.high_reward()
 
-            if is_end_update:
-                target = self.high_reward()
-            else:
-                target = self.high_reward() + \
-                    self.gamma ** (self.t + 1) * self.vfunc(z)
+            if not is_end_update:
+                target += self.gamma ** (self.t + 1) * self.vfunc(z)
 
             td_error = target - self.vfunc(self.pz)
             self.vfunc.update(self.pz,
