@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from setuptools import setup, find_packages
+from setuptools import setup
 from codecs import open
 from os import path
 import re
@@ -39,7 +39,7 @@ with open('README.md', encoding='utf-8') as f:
 
 setup(
     name=package_name,
-    packages=find_packages(where=package_name),
+    packages=[package_name],
 
     version=version,
 

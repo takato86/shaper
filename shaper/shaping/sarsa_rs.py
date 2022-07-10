@@ -16,7 +16,7 @@ class SarsaRS(AbstractShaping):
         return True
 
     def __init__(self, gamma: float, lr: float, aggregator: AbstractAggregator, vfunc: AbstractValue,
-                 is_success: Callable[[bool, dict[str, Any]], bool]):
+                 is_success: Callable[[bool, Dict[str, Any]], bool]):
         self.gamma = gamma
         self.lr = lr
         self.aggregator = aggregator
