@@ -6,6 +6,7 @@ from os import path
 import re
 
 package_name = "shaper"
+package_dir = ["shaper", "shaper.shaping", "shaper.aggregator"]
 
 root_dir = path.abspath(path.dirname(__file__))
 
