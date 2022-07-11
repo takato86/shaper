@@ -39,7 +39,7 @@ with open('README.md', encoding='utf-8') as f:
 
 setup(
     name=package_name,
-    packages=[package_name],
+    packages=package_dir,
 
     version=version,
 
