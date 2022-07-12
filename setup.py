@@ -6,6 +6,7 @@ from os import path
 import re
 
 package_name = "shaper"
+package_dir = ["shaper", "shaper.shaping", "shaper.aggregator"]
 
 root_dir = path.abspath(path.dirname(__file__))
 
@@ -38,7 +39,7 @@ with open('README.md', encoding='utf-8') as f:
 
 setup(
     name=package_name,
-    packages=[package_name],
+    packages=package_dir,
 
     version=version,
 
