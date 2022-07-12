@@ -27,7 +27,6 @@ class SarsaRS(AbstractShaping):
         # for analysis varibles
         self.counter_transit = 0
         self.is_success = is_success
-        self.is_already_end = False
 
     @property
     def current_state(self):
@@ -73,7 +72,7 @@ class SarsaRS(AbstractShaping):
         is_end_update = self.is_success(done, info)
         self.high_reward.update(reward, self.t)
 
-        if not self.is_already_end and (self.pz != z or is_end_update):
+        if reward != 0 or self.pz != z:
             assert self.t >= 0
             target = self.high_reward()
 
@@ -85,7 +84,6 @@ class SarsaRS(AbstractShaping):
                               self.vfunc(self.pz) + self.lr * td_error)
             self.t = -1
             self.high_reward.reset()
-            self.is_already_end = is_end_update
 
     def start(self, obs):
         self.counter_transit = 0
@@ -128,7 +126,6 @@ class SarsaRS(AbstractShaping):
     def reset(self):
         self.t = 0
         self.pz = None
-        self.is_already_end = False
         self.high_reward.reset()
         self.aggregator.reset()
 
