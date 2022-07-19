@@ -43,3 +43,6 @@ class TableValue(AbstractValue):
 
     def get_min_value(self) -> float:
         return min(self.value.values())
+    
+    def state_dict(self) -> Dict[int, float]:
+        return self.value
