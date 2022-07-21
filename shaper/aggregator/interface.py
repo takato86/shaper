@@ -1,6 +1,6 @@
 import abc
 import numpy as np
-from typing import Dict, Generic, Optional, TypeVar
+from typing import Any, Dict, Generic, Optional, TypeVar
 
 from shaper.value import AbstractValue
 
@@ -10,7 +10,7 @@ AggregatedState = TypeVar("AggregatedState")
 
 class AbstractAggregator(Generic[AggregatedState], metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def __call__(self, obs: np.ndarray) -> AggregatedState:
+    def __call__(self, obs: np.ndarray, done: bool, info: dict[str, Any]) -> AggregatedState:
         """observation into internal state."""
         raise NotImplementedError
 

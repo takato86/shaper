@@ -33,9 +33,9 @@ class SubgoalRS(AbstractShaping):
     def step(self, pre_obs: np.ndarray, action: np.ndarray, reward: float,
              obs: np.ndarray, done: bool, info: Dict[str, Any]) -> float:
         if self.pz is None:
-            self.pz = self.aggregator(pre_obs)
+            self.pz = self.aggregator(pre_obs, False, {})
 
-        z = self.aggregator(obs)
+        z = self.aggregator(obs, done, info)
 
         if self.pz == z:
             self.t += 1
@@ -73,17 +73,20 @@ class SubgoalRS(AbstractShaping):
 
     def start(self, obs):
         self.counter_transit = 0
-        self.pz = self.aggregator(obs)
+        self.pz = self.aggregator(obs, False, {})
 
     def perform(self, pre_obs, obs, reward, done, info=None):
         if self.pz is None:
-            self.pz = self.aggregator(pre_obs)
-        z = self.aggregator(obs)
+            self.pz = self.aggregator(pre_obs, False, {})
+
+        z = self.aggregator(obs, done, info)
+
         if self.pz == z:
             self.t += 1
         else:
             self.counter_transit += 1
             self.t = 0
+
         c_potential = self.potential(z)
         v = decimal_calc(
             self.gamma * c_potential,
@@ -92,8 +95,10 @@ class SubgoalRS(AbstractShaping):
         )
         self.pz = z
         self.p_potential = c_potential
+
         if done:
             self.reset()
+
         return v
 
     def potential(self, z):

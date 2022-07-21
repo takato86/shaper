@@ -1,6 +1,6 @@
 import os
 import logging
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import numpy as np
 from shaper.achiever import AbstractAchiever
@@ -18,8 +18,8 @@ class DynamicTrajectoryAggregation(AbstractAggregator[int]):
         self.current_state = 0
         self.n_states = len(self.achiever.subgoals) + 1
 
-    def __call__(self, obs: np.ndarray) -> int:
-        if self.achiever.eval(obs, self.current_state):
+    def __call__(self, obs: np.ndarray, done: bool, info: dict[str, Any]) -> int:
+        if self.achiever.eval(obs, self.current_state, done, info):
             self.current_state += 1
             logger.debug(
                 "Subgoal is achieved! Transit to {} at {}".format(
@@ -49,8 +49,8 @@ class Checker(AbstractAggregator):
         self.current_state = 0
         self.n_states = len(self.achiever.subgoals) + 1
 
-    def __call__(self, obs):
-        if self.achiever.eval(obs, self.current_state):
+    def __call__(self, obs, done, info):
+        if self.achiever.eval(obs, self.current_state, done, info):
             self.current_state += 1
             logger.debug(
                 "Subgoal is achieved! Transit to {}".format(self.current_state)
