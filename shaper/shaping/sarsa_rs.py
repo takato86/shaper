@@ -56,8 +56,8 @@ class SarsaRS(AbstractShaping):
             _type_: _description_
         """
         if self.pz is None:
-            self.pz = self.aggregator(pre_obs)
-        z = self.aggregator(obs)
+            self.pz = self.aggregator(pre_obs, False, {})
+        z = self.aggregator(obs, done, info)
         if self.pz != z:
             self.counter_transit += 1
         v = self.shape(self.pz, z)
@@ -72,7 +72,7 @@ class SarsaRS(AbstractShaping):
         is_end_update = self.is_success(done, info)
         self.high_reward.update(reward, self.t)
 
-        if reward != 0 or self.pz != z:
+        if self.pz != z or is_end_update:
             assert self.t >= 0
             target = self.high_reward()
 
@@ -87,7 +87,7 @@ class SarsaRS(AbstractShaping):
 
     def start(self, obs):
         self.counter_transit = 0
-        self.pz = self.aggregator(obs)
+        self.pz = self.aggregator(obs, False, {})
 
     def perform(self, pre_obs, reward, obs, done, info):
         """[DEPRECATED] return the shaping reward and train the potentials
@@ -104,8 +104,8 @@ class SarsaRS(AbstractShaping):
         """
         warnings.warn("deprecated", DeprecationWarning)
         if self.pz is None:
-            self.pz = self.aggregator(pre_obs)
-        z = self.aggregator(obs)
+            self.pz = self.aggregator(pre_obs, False, {})
+        z = self.aggregator(obs, done, info)
         if self.pz != z:
             self.counter_transit += 1
         v = decimal_calc(

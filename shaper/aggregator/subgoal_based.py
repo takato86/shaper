@@ -1,6 +1,6 @@
 import os
 import logging
-from typing import Dict, Optional
+from typing import Any, Dict, Optional, Callable
 
 import numpy as np
 from shaper.achiever import AbstractAchiever
@@ -13,12 +13,24 @@ logger = logging.getLogger(__name__)
 
 
 class DynamicTrajectoryAggregation(AbstractAggregator[int]):
-    def __init__(self, achiever: AbstractAchiever):
+    def __init__(self, achiever: AbstractAchiever, is_success: Callable[[bool, Dict[str, Any]], bool]):
         self.achiever = achiever
+        self.is_success = is_success
         self.current_state = 0
-        self.n_states = len(self.achiever.subgoals) + 1
+        # +2 consists of abstract state before achieving and at end state.
+        self.n_states = len(self.achiever.subgoals) + 2
 
-    def __call__(self, obs: np.ndarray) -> int:
+    def __call__(self, obs: np.ndarray, done: bool, info: dict[str, Any]) -> int:
+        # if self.is_success(done, info):
+        #     # ゴール直前の抽象状態からの遷移のみを受け付ける
+        #     self.current_state = self.n_states - 1
+        #     logger.debug(
+        #         "The episode is succeeded! Transit to {} at {}".format(
+        #             self.current_state, os.getpid()
+        #         )
+        #     )
+        #     return self.current_state
+
         if self.achiever.eval(obs, self.current_state):
             self.current_state += 1
             logger.debug(
@@ -27,8 +39,8 @@ class DynamicTrajectoryAggregation(AbstractAggregator[int]):
                 )
             )
             return self.current_state
-        else:
-            return self.current_state
+
+        return self.current_state
 
     def reset(self) -> None:
         self.current_state = 0
@@ -49,8 +61,8 @@ class Checker(AbstractAggregator):
         self.current_state = 0
         self.n_states = len(self.achiever.subgoals) + 1
 
-    def __call__(self, obs):
-        if self.achiever.eval(obs, self.current_state):
+    def __call__(self, obs, done, info):
+        if self.achiever.eval(obs, self.current_state, done, info):
             self.current_state += 1
             logger.debug(
                 "Subgoal is achieved! Transit to {}".format(self.current_state)

@@ -1,5 +1,7 @@
 
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
+
+import numpy as np
 from shaper.aggregator.interface import AbstractAggregator
 from shaper.splitter import Splitter
 from shaper.value import AbstractValue, TableValue
@@ -9,7 +11,7 @@ class Discretizer(AbstractAggregator):
     def __init__(self, splitter: Splitter):
         self.splitter = splitter
 
-    def __call__(self, obs):
+    def __call__(self, obs: np.ndarray, done: bool, info: dict[str, Any]):
         return self.splitter.eval(obs)
 
     def reset(self):
