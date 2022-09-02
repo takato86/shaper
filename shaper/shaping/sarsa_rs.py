@@ -131,3 +131,51 @@ class SarsaRS(AbstractShaping):
 
     def get_counter_transit(self):
         return self.counter_transit
+
+
+class SarsaRSUpdateConstraint(SarsaRS):
+    def __init__(self, gamma: float, lr: float, aggregator: AbstractAggregator, vfunc: AbstractValue,
+                 is_success: Callable[[bool, Dict[str, Any]], bool], positive_reward: bool):
+        super().__init__(gamma, lr, aggregator, vfunc, is_success)
+        self.ppz = None  # previous
+        self.positive_reward = positive_reward
+    
+    def start(self, obs):
+        self.ppz = None
+        return super().start(obs)
+    
+    def step(self, pre_obs: np.ndarray, action: np.ndarray, reward: float, obs: np.ndarray, done: bool, info: Dict[str, Any]) -> float:
+        self.ppz = self.pz
+        return super().step(pre_obs, action, reward, obs, done, info)
+    
+    def __train(self, z, reward, done, info):
+        self.t += 1
+        is_end_update = self.is_success(done, info)
+        self.high_reward.update(reward, self.t)
+
+        if self.pz != z or is_end_update:
+            assert self.t >= 0
+            target = self.high_reward()
+
+            if not is_end_update:
+                target += self.gamma ** (self.t + 1) * self.vfunc(z)
+
+            # if the initial abstract state, the value is set by infinite.
+            ppv = self.vfunc(self.ppz) if self.ppz is not None else -np.inf
+            comparison = ppv / self.gamma if self.positive_reward else ppv * self.gamma
+            target = max(target, comparison)
+
+            td_error = target - self.vfunc(self.pz)
+            self.vfunc.update(self.pz,
+                              self.vfunc(self.pz) + self.lr * td_error)
+            self.t = -1
+            self.high_reward.reset()
+
+    def reset(self):
+        super().reset()
+        self.ppz = None
+
+    def perform(self, pre_obs, reward, obs, done, info):
+        self.ppz = self.pz
+        v = super().perform(pre_obs, reward, obs, done, info)
+        return v
