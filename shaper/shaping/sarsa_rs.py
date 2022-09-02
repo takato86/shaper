@@ -69,7 +69,7 @@ class SarsaRS(AbstractShaping):
 
     def __train(self, z, reward, done, info):
         self.t += 1
-        is_end_update = self.is_success(done, info) and z == self.vfunc.n_states - 1
+        is_end_update = self.is_success(done, info)
         self.high_reward.update(reward, self.t)
 
         if self.pz != z or is_end_update:

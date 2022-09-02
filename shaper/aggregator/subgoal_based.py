@@ -21,15 +21,15 @@ class DynamicTrajectoryAggregation(AbstractAggregator[int]):
         self.n_states = len(self.achiever.subgoals) + 2
 
     def __call__(self, obs: np.ndarray, done: bool, info: dict[str, Any]) -> int:
-        if self.is_success(done, info) and self.current_state == self.n_states - 2:
-            # ゴール直前の抽象状態からの遷移のみを受け付ける
-            self.current_state = self.n_states - 1
-            logger.debug(
-                "The episode is succeeded! Transit to {} at {}".format(
-                    self.current_state, os.getpid()
-                )
-            )
-            return self.current_state
+        # if self.is_success(done, info):
+        #     # ゴール直前の抽象状態からの遷移のみを受け付ける
+        #     self.current_state = self.n_states - 1
+        #     logger.debug(
+        #         "The episode is succeeded! Transit to {} at {}".format(
+        #             self.current_state, os.getpid()
+        #         )
+        #     )
+        #     return self.current_state
 
         if self.achiever.eval(obs, self.current_state):
             self.current_state += 1
