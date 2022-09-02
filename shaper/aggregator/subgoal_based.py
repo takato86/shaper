@@ -16,7 +16,7 @@ class DynamicTrajectoryAggregation(AbstractAggregator[int]):
     def __init__(self, achiever: AbstractAchiever, is_success: Callable[[bool, Dict[str, Any]], bool]):
         self.achiever = achiever
         self.is_success = is_success
-        self.current_state = 0
+        self.__current_state = 0
         # +2 consists of abstract state before achieving and at end state.
         self.n_states = len(self.achiever.subgoals) + 2
 
@@ -31,48 +31,51 @@ class DynamicTrajectoryAggregation(AbstractAggregator[int]):
         #     )
         #     return self.current_state
 
-        if self.achiever.eval(obs, self.current_state):
-            self.current_state += 1
+        if self.achiever.eval(obs, self.__current_state):
+            self.__current_state += 1
             logger.debug(
                 "Subgoal is achieved! Transit to {} at {}".format(
-                    self.current_state, os.getpid()
+                    self.__current_state, os.getpid()
                 )
             )
-            return self.current_state
+            return self.__current_state
 
-        return self.current_state
+        return self.__current_state
+
+    @property
+    def current_state(self) -> int:
+        return self.__current_state
 
     def reset(self) -> None:
-        self.current_state = 0
+        self.__current_state = 0
 
     def get_n_states(self) -> int:
         return self.n_states
-
-    def get_current_state(self) -> int:
-        return self.current_state
 
     def create_vfunc(self, values: Optional[Dict[int, float]] = None) -> AbstractValue:
         return TableValue(self.n_states, values)
 
 
-class Checker(AbstractAggregator):
+class Checker(AbstractAggregator[int]):
     def __init__(self, achiever: AbstractAchiever):
         self.achiever = achiever
-        self.current_state = 0
+        self.__current_state = 0
         self.n_states = len(self.achiever.subgoals) + 1
 
-    def __call__(self, obs, done, info):
-        if self.achiever.eval(obs, self.current_state, done, info):
-            self.current_state += 1
+    def __call__(self, obs: Any, done: bool, info: Dict[str, Any]) -> int:
+        if self.achiever.eval(obs, self.__current_state):
+            self.__current_state += 1
             logger.debug(
-                "Subgoal is achieved! Transit to {}".format(self.current_state)
+                "Subgoal is achieved! Transit to {}".format(self.__current_state)
             )
-            return True
-        else:
-            return False
+        return self.__current_state
+
+    @property
+    def current_state(self) -> int:
+        return self.__current_state
 
     def reset(self):
-        self.current_state = 0
+        self.__current_state = 0
 
     def get_n_states(self):
         return self.n_states

@@ -28,7 +28,7 @@ class SubgoalRS(AbstractShaping):
 
     @property
     def current_state(self) -> Optional[np.ndarray]:
-        return self.aggregator.get_current_state()
+        return self.aggregator.current_state
 
     def step(self, pre_obs: np.ndarray, action: np.ndarray, reward: float,
              obs: np.ndarray, done: bool, info: Dict[str, Any]) -> float:
