@@ -20,7 +20,7 @@ class DynamicTrajectoryAggregation(AbstractAggregator[int]):
         # +2 consists of abstract state before achieving and at end state.
         self.n_states = len(self.achiever.subgoals) + 2
 
-    def __call__(self, obs: np.ndarray, done: bool, info: dict[str, Any]) -> int:
+    def __call__(self, obs: np.ndarray, done: bool, info: Dict[str, Any]) -> int:
         # if self.is_success(done, info):
         #     # ゴール直前の抽象状態からの遷移のみを受け付ける
         #     self.current_state = self.n_states - 1

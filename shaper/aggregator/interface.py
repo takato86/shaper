@@ -10,7 +10,7 @@ AggregatedState = TypeVar("AggregatedState")
 
 class AbstractAggregator(Generic[AggregatedState], metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def __call__(self, obs: np.ndarray, done: bool, info: dict[str, Any]) -> AggregatedState:
+    def __call__(self, obs: np.ndarray, done: bool, info: Dict[str, Any]) -> AggregatedState:
         """observation into internal state."""
         raise NotImplementedError
 
