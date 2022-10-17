@@ -70,6 +70,8 @@ class SarsaRS(AbstractShaping):
     def __train(self, z, reward, done, info):
         self.t += 1
         is_end_update = self.is_success(done, info)
+        # ↓ whether the abstract state is final or not.
+        # is_final_astate = self.aggregator.get_n_states() - 1 == self.aggregator.current_state
         self.high_reward.update(reward, self.t)
 
         if self.pz != z or is_end_update:
@@ -124,7 +126,7 @@ class SarsaRS(AbstractShaping):
         return self.vfunc(z)
 
     def reset(self):
-        self.t = 0
+        self.t = -1
         self.pz = None
         self.high_reward.reset()
         self.aggregator.reset()

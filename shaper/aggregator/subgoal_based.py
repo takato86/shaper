@@ -18,7 +18,7 @@ class DynamicTrajectoryAggregation(AbstractAggregator[int]):
         self.is_success = is_success
         self.current_state = 0
         # +2 consists of abstract state before achieving and at end state.
-        self.n_states = len(self.achiever.subgoals) + 2
+        self.n_states = len(self.achiever.subgoals) + 1
 
     def __call__(self, obs: np.ndarray, done: bool, info: dict[str, Any]) -> int:
         # if self.is_success(done, info):
