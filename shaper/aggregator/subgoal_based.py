@@ -1,11 +1,12 @@
 import os
 import logging
-from typing import Any, Dict, Optional, Callable
+from typing import Any, Dict, Optional, Callable, Tuple
 
 import numpy as np
 from shaper.achiever import AbstractAchiever
 
 from shaper.aggregator.interface import AbstractAggregator
+from shaper.transiter import AbstractTransiter
 from shaper.value import AbstractValue, TableValue
 
 
@@ -54,6 +55,31 @@ class DynamicTrajectoryAggregation(AbstractAggregator[int]):
 
     def create_vfunc(self, values: Optional[Dict[int, float]] = None) -> AbstractValue:
         return TableValue(self.n_states, values)
+
+
+class DynamicStateAggregation(AbstractAggregator[int]):
+    def __init__(self, transiter: AbstractTransiter, is_success: Callable[[bool, Dict[str, Any]], bool]):
+        self.transiter = transiter
+        self.is_success = is_success
+        self.__current_state = self.transiter.reset()
+        # +2 consists of abstract state before achieving and at end state.
+
+    def __call__(self, obs: np.ndarray, done: bool, info: Dict[str, Any]) -> int:
+        self.__current_state = self.transiter.transit(obs, self.__current_state)
+        return self.__current_state
+
+    @property
+    def current_state(self) -> int:
+        return self.__current_state
+
+    def reset(self) -> None:
+        self.__current_state = self.transiter.reset()
+
+    def get_n_states(self) -> Tuple[int]:
+        return self.transiter.n_states
+
+    def create_vfunc(self, values: Optional[np.ndarray] = None) -> AbstractValue:
+        return TableValue(self.transiter.n_states, values)
 
 
 class Checker(AbstractAggregator[int]):

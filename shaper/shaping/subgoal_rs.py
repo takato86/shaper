@@ -107,9 +107,6 @@ class SubgoalRS(AbstractShaping):
     def get_counter_transit(self):
         return self.counter_transit
 
-    def get_current_state(self):
-        return self.aggregator.get_current_state()
-
 
 class NaiveSRS(SubgoalRS):
     @classmethod

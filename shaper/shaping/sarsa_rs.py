@@ -30,7 +30,7 @@ class SarsaRS(AbstractShaping):
 
     @property
     def current_state(self):
-        return self.aggregator.get_current_state()
+        return self.aggregator.current_state
 
     def shape(self, pz, z) -> float:
         r = decimal_calc(
@@ -145,8 +145,24 @@ class SarsaRSUpdateConstraint(SarsaRS):
         return super().start(obs)
     
     def step(self, pre_obs: np.ndarray, action: np.ndarray, reward: float, obs: np.ndarray, done: bool, info: Dict[str, Any]) -> float:
-        self.ppz = self.pz
-        return super().step(pre_obs, action, reward, obs, done, info)
+        # the following is the same as sarsa_rs.
+        if self.pz is None:
+            self.pz = self.aggregator(pre_obs, False, {})
+        z = self.aggregator(obs, done, info)
+        if self.pz != z:
+            self.counter_transit += 1
+        v = self.shape(self.pz, z)
+        self.__train(z, reward, done, info)
+
+        if self.pz != z:
+            # pzが更新されるときにppzも更新
+            self.ppz = self.pz
+
+        self.pz = z
+        if done:
+            self.reset()
+        return v
+
     
     def __train(self, z, reward, done, info):
         self.t += 1
