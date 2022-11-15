@@ -124,7 +124,7 @@ class SarsaRS(AbstractShaping):
         return self.vfunc(z)
 
     def reset(self):
-        self.t = 0
+        self.t = -1
         self.pz = None
         self.high_reward.reset()
         self.aggregator.reset()
